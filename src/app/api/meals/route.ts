@@ -72,6 +72,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
+    // Derive month from date, e.g. "2026-04-24" -> "April 2026"
+    const [y, m, d] = date.split('-');
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const month = `${months[parseInt(m) - 1]} ${y}`;
+
     const messObjectId = new mongoose.Types.ObjectId(mess._id.toString());
 
     const bulkOps = mealData.map((md: any) => {
@@ -82,7 +87,7 @@ export async function POST(req: Request) {
       return {
         updateOne: {
           filter: { messId: messObjectId, userId: new mongoose.Types.ObjectId(md.userId), date },
-          update: { $set: { mealCount, breakfast: md.breakfast || 0, lunch: md.lunch || 0, dinner: md.dinner || 0 } },
+          update: { $set: { mealCount, breakfast: md.breakfast || 0, lunch: md.lunch || 0, dinner: md.dinner || 0, month } },
           upsert: true,
         },
       };

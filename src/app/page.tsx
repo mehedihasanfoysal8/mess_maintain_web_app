@@ -218,6 +218,109 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Why Choose Section */}
+      <section className="py-32 bg-indigo-50 dark:bg-slate-900/40 relative z-10 border-y border-slate-100 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="relative">
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
+              <div className="relative bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-2xl">
+                <h3 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Built for your lifestyle</h3>
+                <ul className="space-y-6">
+                  {[
+                    { t: "Automated Calculations", d: "No more manual math errors in meal rates or balances." },
+                    { t: "Transparency First", d: "Every member sees every transaction. No hidden costs." },
+                    { t: "Instant Join", d: "Sign up, find your mess, and you're in. It's that simple." },
+                    { t: "Cloud Sync", d: "Access your data from anywhere, on any device, anytime." }
+                  ].map((item, idx) => (
+                    <li key={idx} className="flex gap-4">
+                      <div className="mt-1 h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 size={14} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 dark:text-white">{item.t}</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">{item.d}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="space-y-8">
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
+                Managing a mess shouldn't be a <span className="text-indigo-600 dark:text-indigo-400">second job.</span>
+              </h2>
+              <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                We've taken the most painful parts of living with others—tracking meals and splitting bills—and turned them into a seamless, 5-minute daily task.
+              </p>
+              <div className="grid grid-cols-2 gap-8 pt-4">
+                <div>
+                  <p className="text-4xl font-black text-indigo-600 dark:text-indigo-400 mb-1">500+</p>
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Active Messes</p>
+                </div>
+                <div>
+                  <p className="text-4xl font-black text-purple-600 dark:text-purple-400 mb-1">10k+</p>
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Happy Members</p>
+                </div>
+              </div>
+              <div className="pt-6">
+                <Link href="/register" className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:gap-3 transition-all">
+                  Start your mess today <ArrowRight size={20} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-32 bg-white dark:bg-slate-950 relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">Trusted by hundreds of roommates</h2>
+            <p className="text-xl text-slate-500 dark:text-slate-400">Join the community of smarter shared living.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { n: "Rahat Ahmed", r: "Student, DU", t: "MessMaintain turned our daily arguments into 5-minute task. The automated meal rate calculation is a lifesaver!" },
+              { n: "Sabbir Hossain", r: "Job Holder, Dhaka", t: "Finally a system that handles deposits and shared costs transparently. Highly recommended for any bachelor mess." },
+              { n: "Ariful Islam", r: "Manager, Green Mess", t: "As a manager, I love how easy it is to approve members and log bazar costs. The monthly summary is perfect." }
+            ].map((testi, idx) => (
+              <div key={idx} className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 relative">
+                <div className="flex gap-1 text-amber-500 mb-4">
+                  {[1,2,3,4,5].map(s => <span key={s}>★</span>)}
+                </div>
+                <p className="text-slate-600 dark:text-slate-400 italic mb-6 text-lg">"{testi.t}"</p>
+                <div>
+                  <p className="font-bold text-slate-900 dark:text-white">{testi.n}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{testi.r}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-32 bg-slate-50 dark:bg-slate-900/20 relative z-10 border-t border-slate-100 dark:border-slate-800">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center text-slate-900 dark:text-white mb-16 tracking-tight">Frequently Asked Questions</h2>
+          <div className="space-y-6">
+            {[
+              { q: "Is MessMaintain free to use?", a: "Yes! MessMaintain is completely free for student messes and small bachelor shared living spaces." },
+              { q: "How many members can join a mess?", a: "There is no hard limit. You can manage a mess with 3 members or 300 members seamlessly." },
+              { q: "Is my data secure?", a: "Absolutely. We use industry-standard encryption and JWT-based authentication to keep your financial data private." },
+              { q: "Can I use it on my mobile phone?", a: "Yes, MessMaintain is built with a mobile-first approach and works perfectly on any smartphone browser." }
+            ].map((faq, idx) => (
+              <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 className="font-bold text-slate-900 dark:text-white mb-2">{faq.q}</h4>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-900 dark:to-purple-900"></div>

@@ -24,10 +24,38 @@ export async function GET(req: Request) {
       return NextResponse.json({ mess: null }, { status: 200 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const requestedMonth = searchParams.get('month'); // e.g. "April 2026"
+    const activeMonth = (requestedMonth || mess.initialMonth || "").trim(); 
+    
     // Convert IDs to ObjectId for proper aggregation matching
     const messObjectId = new mongoose.Types.ObjectId(mess._id.toString());
     const userObjectId = new mongoose.Types.ObjectId(userId);
-    const activeMonth = mess.initialMonth; // e.g., "April 2026"
+    
+    // Robust month prefix calculation
+    let monthPrefix = "";
+    try {
+      const parts = activeMonth.split(/\s+/);
+      if (parts.length >= 2) {
+        // Handle "April 2026"
+        const monthName = parts[0];
+        const yearName = parts[1];
+        const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthNum = monthsArr.findIndex(m => m.toLowerCase() === monthName.toLowerCase()) + 1;
+        if (monthNum > 0) {
+          monthPrefix = `${yearName}-${monthNum.toString().padStart(2, '0')}`;
+        }
+      } else if (activeMonth.includes('/')) {
+        // Handle "21/8/2006" fallback
+        const dateParts = activeMonth.split('/');
+        if (dateParts.length === 3) {
+          // Assuming DD/MM/YYYY
+          monthPrefix = `${dateParts[2]}-${dateParts[1].padStart(2, '0')}`;
+        }
+      }
+    } catch (e) {
+      console.error("Month parsing error:", e);
+    }
 
     // =============================================
     // PERSONAL STATS - filtered by userId AND month
@@ -45,9 +73,27 @@ export async function GET(req: Request) {
     ]);
     const myDeposit = userDeposits.length > 0 ? userDeposits[0].total : 0;
 
+    const mealSumExpression = {
+      $sum: {
+        $max: [
+          { $add: [{ $ifNull: ["$breakfast", 0] }, { $ifNull: ["$lunch", 0] }, { $ifNull: ["$dinner", 0] }] },
+          { $ifNull: ["$mealCount", 0] }
+        ]
+      }
+    };
+
     const userMeals = await Meal.aggregate([
-      { $match: { messId: messObjectId, userId: userObjectId } },
-      { $group: { _id: null, total: { $sum: '$mealCount' } } }
+      { 
+        $match: { 
+          messId: messObjectId, 
+          userId: userObjectId,
+          $or: [
+            { month: activeMonth },
+            ...(monthPrefix ? [{ date: { $regex: new RegExp(`^${monthPrefix}`) } }] : [])
+          ]
+        } 
+      },
+      { $group: { _id: null, total: mealSumExpression } }
     ]);
     const myMeals = userMeals.length > 0 ? userMeals[0].total : 0;
 
@@ -55,8 +101,16 @@ export async function GET(req: Request) {
     // MESS SUMMARY - filtered by month
     // =============================================
     const messMeals = await Meal.aggregate([
-      { $match: { messId: messObjectId } },
-      { $group: { _id: null, total: { $sum: '$mealCount' } } }
+      { 
+        $match: { 
+          messId: messObjectId,
+          $or: [
+            { month: activeMonth },
+            ...(monthPrefix ? [{ date: { $regex: new RegExp(`^${monthPrefix}`) } }] : [])
+          ]
+        } 
+      },
+      { $group: { _id: null, total: mealSumExpression } }
     ]);
     const totalMeals = messMeals.length > 0 ? messMeals[0].total : 0;
 

@@ -4,6 +4,7 @@ export interface IMeal extends Document {
   messId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   date: string; // YYYY-MM-DD
+  month: string; // e.g. "April 2026"
   breakfast: number;
   lunch: number;
   dinner: number;
@@ -17,6 +18,7 @@ const MealSchema: Schema = new Schema(
     messId: { type: Schema.Types.ObjectId, ref: 'Mess', required: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     date: { type: String, required: true },
+    month: { type: String, required: true },
     breakfast: { type: Number, default: 0 },
     lunch: { type: Number, default: 0 },
     dinner: { type: Number, default: 0 },

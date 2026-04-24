@@ -10,34 +10,46 @@ export default function DashboardIndex() {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedMonth, setSelectedMonth] = useState("");
   const ITEMS_PER_PAGE = 5;
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [dashRes, expRes] = await Promise.all([
-          fetch("/api/dashboard"),
-          fetch("/api/expenses")
-        ]);
-        
-        if (dashRes.ok) {
-          const dashJson = await dashRes.json();
-          setData(dashJson);
-        }
-        if (expRes.ok) {
-          const expJson = await expRes.json();
-          setExpenses(expJson.expenses || []);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    const now = new Date();
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentMonthStr = `${months[now.getMonth()]} ${now.getFullYear()}`;
+    setSelectedMonth(currentMonthStr);
   }, []);
 
-  if (loading) {
+  const fetchData = async (month: string) => {
+    setLoading(true);
+    try {
+      const [dashRes, expRes] = await Promise.all([
+        fetch(`/api/dashboard?month=${encodeURIComponent(month)}`),
+        fetch("/api/expenses")
+      ]);
+      
+      if (dashRes.ok) {
+        const dashJson = await dashRes.json();
+        setData(dashJson);
+      }
+      if (expRes.ok) {
+        const expJson = await expRes.json();
+        setExpenses(expJson.expenses || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedMonth) {
+      fetchData(selectedMonth);
+    }
+  }, [selectedMonth]);
+
+  if (loading && !data) {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader2 className="animate-spin text-indigo-600 dark:text-indigo-400" size={32} />
@@ -45,7 +57,7 @@ export default function DashboardIndex() {
     );
   }
 
-  if (!data?.mess) {
+  if (!data?.mess && !loading) {
     return (
       <div className="max-w-4xl mx-auto h-full flex flex-col items-center justify-center text-center py-20">
         <div className="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-full mb-6">
@@ -77,19 +89,22 @@ export default function DashboardIndex() {
     );
   }
 
-  const { mess, personal, summary } = data;
+  const { mess, personal, summary } = data || { mess: {}, personal: {}, summary: {} };
+
+  // Months for selector
+  const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const yearOptions = [2025, 2026, 2027];
 
   // Pie Chart Data
   const pieData = [
-    { name: 'Bazar/Meal Cost', value: summary.messMealCost },
-    { name: 'Shared Cost', value: summary.totalSharedCost },
-    { name: 'Individual Cost', value: summary.messIndividualCost },
+    { name: 'Bazar/Meal Cost', value: summary?.messMealCost || 0 },
+    { name: 'Shared Cost', value: summary?.totalSharedCost || 0 },
+    { name: 'Individual Cost', value: summary?.messIndividualCost || 0 },
   ].filter(d => d.value > 0);
   const COLORS = ['#6366f1', '#10b981', '#f59e0b'];
 
   // Bar Chart Data (Grouping expenses by date)
   const groupedByDate = expenses.reduce((acc: any, exp: any) => {
-    // extract date without time
     const d = exp.date.split('T')[0];
     if (!acc[d]) acc[d] = { date: d, Cost: 0, Deposit: 0 };
     if (exp.type === 'Deposit') {
@@ -102,31 +117,55 @@ export default function DashboardIndex() {
   
   const barData = Object.values(groupedByDate)
     .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(-15); // Show last 15 active days
+    .slice(-15);
 
-  // Pagination Logic
-  const totalPages = Math.ceil(expenses.length / ITEMS_PER_PAGE);
-  const paginatedExpenses = expenses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  // Sorting and Pagination Logic
+  const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const totalPages = Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE);
+  const paginatedExpenses = sortedExpenses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-8 pb-10">
       {/* Mess Overview Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-700 dark:to-violet-800 rounded-3xl p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="relative z-10">
-          <p className="text-indigo-100 dark:text-indigo-200 font-medium mb-1 uppercase tracking-wider text-sm">Active Mess</p>
-          <h2 className="text-3xl font-bold mb-2">{mess.name}</h2>
-          <p className="text-indigo-200 dark:text-indigo-300">Current Month: <span className="font-semibold text-white">{mess.activeMonth}</span></p>
+      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-700 dark:to-violet-800 rounded-[2rem] p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative z-10 space-y-2">
+          <div className="flex items-center gap-3">
+            <p className="text-indigo-100 dark:text-indigo-200 font-bold uppercase tracking-widest text-xs bg-white/10 px-3 py-1 rounded-full">Active Mess</p>
+            {loading && <Loader2 className="animate-spin text-white/50" size={16} />}
+          </div>
+          <h2 className="text-4xl font-black">{mess.name}</h2>
+          
+          <div className="flex flex-wrap items-center gap-4 mt-4">
+            <div className="flex items-center gap-2 bg-black/20 px-4 py-2 rounded-xl border border-white/10">
+              <p className="text-sm text-indigo-100 font-medium">Viewing:</p>
+              <select 
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="bg-transparent font-bold text-white outline-none border-none cursor-pointer focus:ring-0 appearance-none pr-6 relative"
+                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'white\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', backgroundSize: '1rem' }}
+              >
+                {yearOptions.map(y => monthsArr.map(m => (
+                  <option key={`${m} ${y}`} value={`${m} ${y}`} className="text-slate-900">{m} {y}</option>
+                )))}
+              </select>
+            </div>
+            
+            {mess.activeMonth !== selectedMonth && (
+              <p className="text-xs text-indigo-200/80 italic">Default mess month: {mess.activeMonth}</p>
+            )}
+          </div>
         </div>
-        <div className="mt-4 md:mt-0 flex gap-4 bg-white/10 dark:bg-black/20 p-4 rounded-2xl backdrop-blur-sm border border-white/20 relative z-10">
-          <div className="text-center">
-            <p className="text-xs text-indigo-200 mb-1">Your Role</p>
-            <p className="font-semibold">{mess.role}</p>
+        
+        <div className="mt-8 md:mt-0 flex gap-6 bg-white/10 dark:bg-black/20 p-6 rounded-3xl backdrop-blur-md border border-white/20 shadow-inner relative z-10">
+          <div className="text-center px-2">
+            <p className="text-xs text-indigo-200 mb-2 font-bold uppercase tracking-tighter">Your Role</p>
+            <p className="text-xl font-black">{mess.role}</p>
           </div>
           <div className="w-px bg-white/20"></div>
-          <div className="text-center">
-            <p className="text-xs text-indigo-200 mb-1">Members</p>
-            <p className="font-semibold">{mess.membersCount}</p>
+          <div className="text-center px-2">
+            <p className="text-xs text-indigo-200 mb-2 font-bold uppercase tracking-tighter">Members</p>
+            <p className="text-xl font-black">{mess.membersCount}</p>
           </div>
         </div>
       </div>
