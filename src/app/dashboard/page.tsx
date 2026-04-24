@@ -227,7 +227,7 @@ export default function DashboardIndex() {
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value: number) => `৳${value}`}
+                    formatter={(value: any) => `৳${value}`}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   />
                   <Legend verticalAlign="bottom" height={36} />

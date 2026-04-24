@@ -3,7 +3,7 @@ import { jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'supersecretjwtkey_for_mess_maintain_app');
 
-export async function middleware(req: any) {
+export async function proxy(req: any) {
   const token = req.cookies.get('auth_token')?.value;
   const { pathname } = req.nextUrl;
 
