@@ -1,65 +1,279 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, PieChart, Users, DollarSign, Shield, Zap, TrendingUp } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans selection:bg-indigo-500/30 overflow-hidden relative">
+      {/* Background Gradients */}
+      <div className="absolute top-0 inset-x-0 h-screen pointer-events-none overflow-hidden flex items-start justify-center">
+        <div className="absolute -top-[40%] -left-[10%] w-[70%] h-[70%] rounded-full bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-transparent blur-3xl dark:from-indigo-600/30 dark:via-purple-800/20" />
+        <div className="absolute top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-gradient-to-bl from-blue-500/20 via-cyan-500/10 to-transparent blur-3xl dark:from-blue-600/20 dark:via-cyan-800/20" />
+      </div>
+
+      {/* Navigation */}
+      <nav className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-500/20">
+            <PieChart size={24} className="animate-pulse" />
+          </div>
+          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 tracking-tight">
+            MessMaintain
+          </span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex items-center gap-6">
+          <ThemeToggle />
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="#features" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</Link>
+            <Link href="#how-it-works" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">How it works</Link>
+          </div>
+          <div className="flex items-center gap-4 border-l border-slate-200 dark:border-slate-800 pl-6">
+            <Link href="/login" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+              Log in
+            </Link>
+            <Link href="/register" className="text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-500 dark:to-purple-500 text-white px-5 py-2.5 rounded-full hover:shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5">
+              Sign up free
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="flex-1 flex flex-col items-center text-center px-6 pt-32 pb-40 relative z-10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-sm font-medium mb-10 shadow-sm">
+          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span className="flex absolute h-2 w-2 rounded-full bg-emerald-500"></span>
+          <span className="text-slate-700 dark:text-slate-300">MessMaintain v2.0 is now live</span>
+        </div>
+        
+        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight max-w-5xl leading-[1.1] mb-10 text-slate-900 dark:text-white drop-shadow-sm">
+          The smart way to manage{" "}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400">
+            shared living.
+          </span>
+        </h1>
+        
+        <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mb-12 leading-relaxed">
+          Say goodbye to complex spreadsheets and disputes. Automate meal tracking, split expenses instantly, and view real-time balances for your entire mess.
+        </p>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center max-w-md mx-auto">
+          <Link href="/register" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1 text-lg">
+            Get Started <ArrowRight size={20} />
+          </Link>
+          <Link href="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white dark:bg-slate-900 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-800 px-8 py-4 rounded-full font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm text-lg">
+            Dashboard
+          </Link>
+        </div>
+
+        {/* Mock Dashboard Preview */}
+        <div className="mt-24 w-full max-w-5xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-3xl p-4 shadow-2xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-50 dark:to-slate-950 top-1/2 z-10 pointer-events-none"></div>
+          <div className="bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner p-6 flex flex-col gap-6 opacity-90">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xl">D</div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-lg">Dream House Mess</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">April 2026</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="text-right">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Total Deposits</p>
+                  <p className="font-bold text-slate-900 dark:text-white">৳1,450.00</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Mess Balance</p>
+                  <p className="font-bold text-emerald-600 dark:text-emerald-400">+৳788.00</p>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl">
+                  <div className="h-2 w-1/2 bg-slate-200 dark:bg-slate-800 rounded mb-4"></div>
+                  <div className="h-6 w-3/4 bg-slate-300 dark:bg-slate-700 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </main>
+
+      {/* Features Section */}
+      <section id="features" className="py-32 relative z-10 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white tracking-tight">Everything you need, nothing you don't</h2>
+            <p className="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">MessMaintain eliminates the friction of shared expenses with smart, automated tools designed for modern living.</p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <FeatureCard 
+              icon={<DollarSign size={28} />} 
+              title="Automated Accounting" 
+              description="Log shared costs like Wi-Fi, individual expenses, and deposits. Everything is calculated automatically to the decimal."
+              gradient="from-emerald-500 to-teal-600"
+            />
+            <FeatureCard 
+              icon={<PieChart size={28} />} 
+              title="Real-time Analytics" 
+              description="View live meal rates, total balances, and personal stats instantly on your personalized dashboard."
+              gradient="from-indigo-500 to-purple-600"
+            />
+            <FeatureCard 
+              icon={<Users size={28} />} 
+              title="Role-based Security" 
+              description="Managers control expenses and approvals while members can transparently view all their data and history."
+              gradient="from-blue-500 to-cyan-600"
+            />
+            <FeatureCard 
+              icon={<TrendingUp size={28} />} 
+              title="Meal Tracking" 
+              description="Daily inputs for breakfast, lunch, and dinner. See monthly visual summaries of everyone's eating habits."
+              gradient="from-amber-500 to-orange-600"
+            />
+            <FeatureCard 
+              icon={<Shield size={28} />} 
+              title="Secure Access" 
+              description="JWT-based authentication ensures your data is protected. Join requests must be manually approved by managers."
+              gradient="from-rose-500 to-pink-600"
+            />
+            <FeatureCard 
+              icon={<Zap size={28} />} 
+              title="Lightning Fast" 
+              description="Built on Next.js 15, the application is highly optimized, fully responsive, and works seamlessly on any device."
+              gradient="from-violet-500 to-fuchsia-600"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* How it works section */}
+      <section id="how-it-works" className="py-32 bg-slate-50 dark:bg-slate-950 relative z-10 border-t border-slate-100 dark:border-slate-800/50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center gap-16">
+            <div className="flex-1 space-y-10">
+              <h2 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">How MessMaintain works</h2>
+              
+              <div className="space-y-8">
+                <Step 
+                  number="1" 
+                  title="Create or Join a Mess" 
+                  description="One person acts as the Manager and creates the mess. Other roommates request to join using a secure mess password." 
+                />
+                <Step 
+                  number="2" 
+                  title="Log Daily Activity" 
+                  description="Managers enter deposits, shared bills, and daily bazar costs. Members' daily meals are recorded systematically." 
+                />
+                <Step 
+                  number="3" 
+                  title="Automated Math" 
+                  description="The system divides the total bazar cost by total meals to find the meal rate, then calculates exactly who owes what." 
+                />
+              </div>
+            </div>
+            
+            <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-xl relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10 rounded-3xl pointer-events-none"></div>
+              <h3 className="text-xl font-bold mb-6 text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-4">Calculation Example</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                  <span className="text-slate-600 dark:text-slate-400">Total Bazar Cost</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">৳ 5,000</span>
+                </div>
+                <div className="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                  <span className="text-slate-600 dark:text-slate-400">Total Mess Meals</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">100</span>
+                </div>
+                <div className="flex justify-between items-center p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50">
+                  <span className="text-indigo-700 dark:text-indigo-300 font-medium">Derived Meal Rate</span>
+                  <span className="font-bold text-indigo-700 dark:text-indigo-300">৳ 50.00 / meal</span>
+                </div>
+                
+                <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">John's Monthly Statement:</p>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-slate-600 dark:text-slate-400">Initial Deposit</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">+৳ 2,000</span>
+                  </div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-slate-600 dark:text-slate-400">Meals Eaten (30 × ৳50)</span>
+                    <span className="text-rose-600 dark:text-rose-400">-৳ 1,500</span>
+                  </div>
+                  <div className="flex justify-between text-sm mb-3">
+                    <span className="text-slate-600 dark:text-slate-400">Shared Costs (Wi-Fi/Maid)</span>
+                    <span className="text-rose-600 dark:text-rose-400">-৳ 300</span>
+                  </div>
+                  <div className="flex justify-between font-bold pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-900 dark:text-white">Final Balance</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">+৳ 200 (Refundable)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 relative z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-900 dark:to-purple-900"></div>
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <h2 className="text-4xl font-bold text-white mb-6">Ready to simplify your mess?</h2>
+          <p className="text-indigo-100 text-xl mb-10">Join thousands of students and bachelors who have stopped arguing over money and started living better.</p>
+          <Link href="/register" className="inline-flex items-center gap-2 bg-white text-indigo-600 px-8 py-4 rounded-full font-bold hover:shadow-2xl transition-all transform hover:-translate-y-1 text-lg">
+            Create your free account
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 dark:bg-black text-slate-400 py-16 text-center border-t border-slate-800 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-1.5 rounded-lg">
+              <PieChart size={18} />
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">MessMaintain</span>
+          </div>
+          <p className="mb-6">© {new Date().getFullYear()} MessMaintain. Built for better living.</p>
+          <div className="flex gap-6">
+            <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="#" className="hover:text-white transition-colors">Contact Support</Link>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function FeatureCard({ icon, title, description, gradient }: { icon: React.ReactNode, title: string, description: string, gradient: string }) {
+  return (
+    <div className="flex flex-col p-8 rounded-3xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800/50 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-indigo-900/20 transition-all group overflow-hidden relative">
+      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${gradient} rounded-bl-full opacity-10 group-hover:opacity-20 transition-opacity`}></div>
+      <div className={`h-14 w-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm bg-gradient-to-br ${gradient} text-white`}>
+        {icon}
+      </div>
+      <h3 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">{title}</h3>
+      <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-lg">{description}</p>
+    </div>
+  );
+}
+
+function Step({ number, title, description }: { number: string, title: string, description: string }) {
+  return (
+    <div className="flex gap-6">
+      <div className="flex-shrink-0 h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xl border border-indigo-200 dark:border-indigo-800">
+        {number}
+      </div>
+      <div>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
+        <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">{description}</p>
+      </div>
     </div>
   );
 }
