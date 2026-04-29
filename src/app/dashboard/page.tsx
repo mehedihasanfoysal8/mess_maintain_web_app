@@ -93,7 +93,8 @@ export default function DashboardIndex() {
 
   // Months for selector
   const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const yearOptions = [2025, 2026, 2027];
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - 1 + i); // From last year to 4 years ahead
 
   // Pie Chart Data
   const pieData = [

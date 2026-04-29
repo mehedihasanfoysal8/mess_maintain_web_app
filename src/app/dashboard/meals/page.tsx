@@ -14,7 +14,7 @@ function Counter({ value, onChange }: { value: number; onChange: (v: number) => 
     <div className="flex items-center justify-center gap-0.5 sm:gap-1">
       <button
         type="button"
-        onClick={() => onChange(Math.max(0, value - 1))}
+        onClick={() => onChange(Math.max(0, value - 0.5))}
         className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg flex items-center justify-center transition-all text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 active:scale-90"
       >
         <Minus size={14} />
@@ -28,7 +28,7 @@ function Counter({ value, onChange }: { value: number; onChange: (v: number) => 
       </span>
       <button
         type="button"
-        onClick={() => onChange(value + 1)}
+        onClick={() => onChange(value + 0.5)}
         className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg flex items-center justify-center transition-all text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400 active:scale-90"
       >
         <Plus size={14} />
@@ -92,9 +92,7 @@ function DailyEntry({ today }: { today: string }) {
       setIsManager(data.isManager);
       const init: DailyState = {};
       data.members.forEach((m: Member) => { init[m._id] = { breakfast: 0, lunch: 0, dinner: 0 }; });
-      data.meals?.forEach((m: any) => {
-        init[m.userId] = { breakfast: m.breakfast || 0, lunch: m.lunch || 0, dinner: m.dinner || 0 };
-      });
+      // DO NOT populate with existing meals. The user wants this to be a purely additive ledger that always starts at 0.
       setMeals(init);
     } finally { setLoading(false); }
   }, [date]);

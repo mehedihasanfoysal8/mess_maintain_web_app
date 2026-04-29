@@ -79,19 +79,28 @@ export async function POST(req: NextRequest) {
 
     const messObjectId = new mongoose.Types.ObjectId(mess._id.toString());
 
-    const bulkOps = mealData.map((md: any) => {
-      // Support both formats
-      const mealCount = md.mealCount != null
-        ? Number(md.mealCount)
-        : (Number(md.breakfast || 0) + Number(md.lunch || 0) + Number(md.dinner || 0));
-      return {
-        updateOne: {
-          filter: { messId: messObjectId, userId: new mongoose.Types.ObjectId(md.userId), date },
-          update: { $set: { mealCount, breakfast: md.breakfast || 0, lunch: md.lunch || 0, dinner: md.dinner || 0, month } },
-          upsert: true,
-        },
-      };
-    });
+    const bulkOps = mealData
+      .filter((md: any) => Number(md.breakfast || 0) > 0 || Number(md.lunch || 0) > 0 || Number(md.dinner || 0) > 0)
+      .map((md: any) => {
+        const mealCount = md.mealCount != null
+          ? Number(md.mealCount)
+          : (Number(md.breakfast || 0) + Number(md.lunch || 0) + Number(md.dinner || 0));
+        return {
+          updateOne: {
+            filter: { messId: messObjectId, userId: new mongoose.Types.ObjectId(md.userId), date },
+            update: { 
+              $inc: { 
+                mealCount, 
+                breakfast: Number(md.breakfast || 0), 
+                lunch: Number(md.lunch || 0), 
+                dinner: Number(md.dinner || 0) 
+              },
+              $setOnInsert: { month }
+            },
+            upsert: true,
+          },
+        };
+      });
 
     if (bulkOps.length > 0) {
       await Meal.bulkWrite(bulkOps);

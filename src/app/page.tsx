@@ -1,6 +1,6 @@
+import { LandingNavbar } from "@/components/LandingNavbar";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, PieChart, Users, DollarSign, Shield, Zap, TrendingUp } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function LandingPage() {
   return (
@@ -12,56 +12,32 @@ export default function LandingPage() {
       </div>
 
       {/* Navigation */}
-      <nav className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-500/20">
-            <PieChart size={24} className="animate-pulse" />
-          </div>
-          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 tracking-tight">
-            MessMaintain
-          </span>
-        </div>
-        <div className="flex items-center gap-6">
-          <ThemeToggle />
-          <div className="hidden md:flex items-center gap-6">
-            <Link href="#features" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</Link>
-            <Link href="#how-it-works" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">How it works</Link>
-          </div>
-          <div className="flex items-center gap-4 border-l border-slate-200 dark:border-slate-800 pl-6">
-            <Link href="/login" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
-              Log in
-            </Link>
-            <Link href="/register" className="text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-500 dark:to-purple-500 text-white px-5 py-2.5 rounded-full hover:shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5">
-              Sign up free
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <LandingNavbar />
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center text-center px-6 pt-32 pb-40 relative z-10">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-sm font-medium mb-10 shadow-sm">
+      <main className="flex-1 flex flex-col items-center text-center px-6 pt-20 sm:pt-32 pb-32 sm:pb-40 relative z-10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-medium mb-8 sm:mb-10 shadow-sm">
           <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
           <span className="flex absolute h-2 w-2 rounded-full bg-emerald-500"></span>
           <span className="text-slate-700 dark:text-slate-300">MessMaintain v2.0 is now live</span>
         </div>
         
-        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight max-w-5xl leading-[1.1] mb-10 text-slate-900 dark:text-white drop-shadow-sm">
+        <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight max-w-5xl leading-[1.1] mb-8 sm:mb-10 text-slate-900 dark:text-white">
           The smart way to manage{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400">
             shared living.
           </span>
         </h1>
         
-        <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mb-12 leading-relaxed">
+        <p className="text-lg sm:text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mb-10 sm:mb-12 leading-relaxed">
           Say goodbye to complex spreadsheets and disputes. Automate meal tracking, split expenses instantly, and view real-time balances for your entire mess.
         </p>
         
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center max-w-md mx-auto">
-          <Link href="/register" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1 text-lg">
+          <Link href="/register" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold hover:shadow-xl hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1 text-lg active:scale-95">
             Get Started <ArrowRight size={20} />
           </Link>
-          <Link href="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white dark:bg-slate-900 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-800 px-8 py-4 rounded-full font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm text-lg">
+          <Link href="/login" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white dark:bg-slate-900 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-800 px-8 py-4 rounded-full font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm text-lg active:scale-95">
             Dashboard
           </Link>
         </div>

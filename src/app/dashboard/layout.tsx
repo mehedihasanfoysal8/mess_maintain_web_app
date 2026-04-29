@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Receipt, Utensils, Settings, LogOut, Loader2, Menu, X, PlusCircle, UserPlus } from "lucide-react";
+import { LayoutDashboard, Users, Receipt, Utensils, Settings, LogOut, Loader2, Menu, X, PlusCircle, UserPlus, FileText } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -67,6 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Meals", href: "/dashboard/meals", icon: <Utensils size={20} /> },
     { name: "Expenses", href: "/dashboard/expenses", icon: <Receipt size={20} /> },
     { name: "Members", href: "/dashboard/members", icon: <Users size={20} /> },
+    { name: "Report", href: "/dashboard/report", icon: <FileText size={20} /> },
     { name: "Settings", href: "/dashboard/settings", icon: <Settings size={20} /> },
   ];
 
@@ -83,8 +84,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex text-slate-900 dark:text-slate-100">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-900/50 dark:bg-black/70 z-20 md:hidden backdrop-blur-sm" 
+        <div
+          className="fixed inset-0 bg-slate-900/50 dark:bg-black/70 z-20 md:hidden backdrop-blur-sm"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -93,14 +94,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30 transform transition-transform duration-200 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 flex flex-col`}>
         {/* Logo */}
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
-            <LayoutDashboard /> MessMaintain
-          </div>
+          <Link href="/">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
+              <LayoutDashboard /> MessMaintain
+            </div>
+          </Link>
           <button className="md:hidden text-slate-500 dark:text-slate-400" onClick={() => setIsSidebarOpen(false)}>
             <X size={24} />
           </button>
         </div>
-        
+
         <div className="flex-1 py-6 px-4 overflow-y-auto">
           {hasMess ? (
             // ── User HAS a mess: show full navigation ──
@@ -109,11 +112,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
-                    pathname === item.href 
-                      ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400" 
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200"
-                  }`}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${pathname === item.href
+                    ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200"
+                    }`}
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   {item.icon} {item.name}
@@ -129,22 +131,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <nav className="space-y-2">
                 <Link
                   href="/dashboard/create-mess"
-                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-medium border ${
-                    pathname === "/dashboard/create-mess"
-                      ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800"
-                      : "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 border-indigo-100 dark:border-indigo-900/50"
-                  }`}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-medium border ${pathname === "/dashboard/create-mess"
+                    ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800"
+                    : "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 border-indigo-100 dark:border-indigo-900/50"
+                    }`}
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   <PlusCircle size={20} /> Create Mess
                 </Link>
                 <Link
                   href="/dashboard/join-mess"
-                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-medium border ${
-                    pathname === "/dashboard/join-mess"
-                      ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-                      : "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 border-emerald-100 dark:border-emerald-900/50"
-                  }`}
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-medium border ${pathname === "/dashboard/join-mess"
+                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                    : "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 border-emerald-100 dark:border-emerald-900/50"
+                    }`}
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   <UserPlus size={20} /> Join Mess
@@ -171,7 +171,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
           >
@@ -195,7 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <ThemeToggle />
           </div>
         </header>
-        
+
         <div className="flex-1 overflow-auto p-4 md:p-8">
           {children}
         </div>

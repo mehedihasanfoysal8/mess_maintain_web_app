@@ -65,6 +65,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
+    const [y, m, d] = date.split('-');
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const calculatedMonth = `${months[parseInt(m, 10) - 1]} ${y}`;
+
     const expense = await Expense.create({
       messId: mess._id,
       userId: targetUserId,
@@ -72,7 +76,7 @@ export async function POST(req: NextRequest) {
       amount: Number(amount),
       date,
       description,
-      month: mess.initialMonth
+      month: calculatedMonth
     });
 
     return NextResponse.json({ message: 'Expense added successfully', expense }, { status: 201 });
