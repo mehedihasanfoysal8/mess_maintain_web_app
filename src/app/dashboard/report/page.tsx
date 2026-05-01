@@ -55,7 +55,7 @@ export default function ReportPage() {
     // -- PAGE 1: OVERVIEW & MEMBER SUMMARY --
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text("Mess Monitor", doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
+    doc.text("Mess Maintain", doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
     doc.setFontSize(14);
     doc.setFont("helvetica", "normal");
     doc.text("Current Month Details", doc.internal.pageSize.getWidth() / 2, 60, { align: "center" });
@@ -117,7 +117,7 @@ export default function ReportPage() {
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(8);
-      doc.text("visit MessMonitor.com", 40, doc.internal.pageSize.getHeight() - 20);
+      doc.text("visit MessMaintain.com", 40, doc.internal.pageSize.getHeight() - 20);
       doc.text(new Date().toLocaleString(), doc.internal.pageSize.getWidth() - 40, doc.internal.pageSize.getHeight() - 20, { align: "right" });
     }
 
@@ -217,7 +217,7 @@ export default function ReportPage() {
 
     const newPageCount = doc.getNumberOfPages();
     for (let i = 2; i <= newPageCount; i++) {
-      doc.setPage(i); doc.setFontSize(8); doc.setFont("helvetica", "normal"); doc.text("visit MessMonitor.com", 40, doc.internal.pageSize.getHeight() - 20); doc.text(new Date().toLocaleString(), doc.internal.pageSize.getWidth() - 40, doc.internal.pageSize.getHeight() - 20, { align: "right" });
+      doc.setPage(i); doc.setFontSize(8); doc.setFont("helvetica", "normal"); doc.text("visit MessMaintain.com", 40, doc.internal.pageSize.getHeight() - 20); doc.text(new Date().toLocaleString(), doc.internal.pageSize.getWidth() - 40, doc.internal.pageSize.getHeight() - 20, { align: "right" });
     }
 
     doc.save(`Mess_Report_${data.mess.activeMonth.replace(/\s+/g, '_')}.pdf`);
@@ -275,7 +275,7 @@ export default function ReportPage() {
 
           {/* Header Section */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Mess Monitor</h1>
+            <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Mess Maintain</h1>
             <p className="text-lg text-slate-600 dark:text-slate-400">Current Month Details</p>
             <h2 className="text-xl font-bold text-indigo-600 dark:text-indigo-400">{reportData.mess.activeMonth}</h2>
           </div>

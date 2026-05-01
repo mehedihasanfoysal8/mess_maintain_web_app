@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings as SettingsIcon, Info, Users, UserPlus, Loader2, Shield, ShieldOff, Crown, Check, X } from "lucide-react";
+import { Settings as SettingsIcon, Info, Users, UserPlus, Loader2, Shield, ShieldOff, Crown, Check, X, User } from "lucide-react";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("members");
@@ -16,6 +16,15 @@ export default function SettingsPage() {
   const [password, setPassword] = useState("");
   const [savingMess, setSavingMess] = useState(false);
 
+  // Profile form state
+  const [profileName, setProfileName] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [profilePhone, setProfilePhone] = useState("");
+  const [profileAddress, setProfileAddress] = useState("");
+  const [profilePassword, setProfilePassword] = useState("");
+  const [profileConfirmPassword, setProfileConfirmPassword] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
   const showMessage = (text: string, type: "success" | "error" = "success") => {
     setMessage({ text, type });
     setTimeout(() => setMessage(null), 4000);
@@ -29,6 +38,12 @@ export default function SettingsPage() {
         setData(json);
         setMessName(json.mess.name);
         setActiveMonth(json.mess.activeMonth);
+        if (json.currentUserProfile) {
+          setProfileName(json.currentUserProfile.name);
+          setProfileEmail(json.currentUserProfile.email);
+          setProfilePhone(json.currentUserProfile.phone);
+          setProfileAddress(json.currentUserProfile.address);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -57,6 +72,36 @@ export default function SettingsPage() {
       showMessage("Error updating settings.", "error");
     } finally {
       setSavingMess(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (profilePassword && profilePassword !== profileConfirmPassword) {
+      showMessage("Passwords do not match", "error");
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: 'updateProfile',
+          profileName,
+          profilePhone,
+          profileAddress,
+          profilePassword: profilePassword || undefined
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to update profile");
+      showMessage("Profile updated successfully!");
+      setProfilePassword("");
+      setProfileConfirmPassword("");
+    } catch {
+      showMessage("Error updating profile.", "error");
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -118,6 +163,7 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: "members", label: "Members & Roles", icon: <Users size={18} />, show: true },
+    { id: "profile", label: "My Profile", icon: <User size={18} />, show: true },
     { id: "requests", label: "Joining Requests", icon: <UserPlus size={18} />, show: isManager, badge: joinRequests?.length },
     { id: "mess", label: "Mess Settings", icon: <SettingsIcon size={18} />, show: isManager },
   ].filter((t) => t.show);
@@ -136,11 +182,10 @@ export default function SettingsPage() {
       {/* Toast Message */}
       {message && (
         <div
-          className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium animate-in slide-in-from-top-2 duration-200 ${
-            message.type === "success"
-              ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800"
-              : "bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-800"
-          }`}
+          className={`flex items-center gap-3 p-4 rounded-xl border text-sm font-medium animate-in slide-in-from-top-2 duration-200 ${message.type === "success"
+            ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800"
+            : "bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-800"
+            }`}
         >
           {message.type === "success" ? <Check size={18} /> : <X size={18} />}
           {message.text}
@@ -155,11 +200,10 @@ export default function SettingsPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-medium relative ${
-                  activeTab === tab.id
-                    ? "bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-700"
-                    : "text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/50"
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap text-sm font-medium relative ${activeTab === tab.id
+                  ? "bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 shadow-sm border border-slate-200 dark:border-slate-700"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800/50"
+                  }`}
               >
                 {tab.icon} {tab.label}
                 {tab.badge > 0 && (
@@ -198,11 +242,10 @@ export default function SettingsPage() {
                     >
                       <div className="flex items-center gap-4">
                         <div
-                          className={`h-12 w-12 rounded-2xl flex items-center justify-center font-bold text-lg flex-shrink-0 ${
-                            m.isManager
-                              ? "bg-gradient-to-br from-indigo-500 to-violet-500 text-white"
-                              : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
-                          }`}
+                          className={`h-12 w-12 rounded-2xl flex items-center justify-center font-bold text-lg flex-shrink-0 ${m.isManager
+                            ? "bg-gradient-to-br from-indigo-500 to-violet-500 text-white"
+                            : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+                            }`}
                         >
                           {m.name.charAt(0).toUpperCase()}
                         </div>
@@ -375,6 +418,94 @@ export default function SettingsPage() {
                     {savingMess ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
                     Save Changes
                   </button>
+                </form>
+              </div>
+            )}
+
+            {/* ── My Profile Tab ── */}
+            {activeTab === "profile" && (
+              <div>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6">Update Profile Information</h3>
+                <form onSubmit={handleUpdateProfile} className="space-y-5 max-w-xl">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                      value={profileName}
+                      onChange={(e) => setProfileName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email Address</label>
+                    <input
+                      type="email"
+                      readOnly
+                      disabled
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed"
+                      value={profileEmail}
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Email address cannot be changed.</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Phone Number</label>
+                      <input
+                        type="tel"
+                        placeholder='Enter your phone number'
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                        value={profilePhone}
+                        onChange={(e) => setProfilePhone(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Address</label>
+                      <input
+                        type="text"
+                        placeholder="Enter you address"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                        value={profileAddress}
+                        onChange={(e) => setProfileAddress(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-4">Change Password</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">New Password</label>
+                        <input
+                          type="password"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                          placeholder="••••••••"
+                          value={profilePassword}
+                          onChange={(e) => setProfilePassword(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Confirm Password</label>
+                        <input
+                          type="password"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                          placeholder="••••••••"
+                          value={profileConfirmPassword}
+                          onChange={(e) => setProfileConfirmPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Leave blank to keep current password.</p>
+                  </div>
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={savingProfile}
+                      className="bg-indigo-600 dark:bg-indigo-500 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors shadow-sm flex items-center gap-2"
+                    >
+                      {savingProfile ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
+                      Update Profile
+                    </button>
+                  </div>
                 </form>
               </div>
             )}

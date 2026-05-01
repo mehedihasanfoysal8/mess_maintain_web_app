@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
 
     const isManager = mess.managerId.toString() === userId;
 
+    const currentUser = await User.findById(userId);
     const members = await User.find({ _id: { $in: mess.members } }).select('name email _id');
     
     let joinRequests = [];
@@ -50,7 +51,13 @@ export async function GET(req: NextRequest) {
         userId: (r.userId as any)?._id,
         createdAt: r.createdAt
       })),
-      isManager
+      isManager,
+      currentUserProfile: {
+        name: currentUser?.name,
+        email: currentUser?.email,
+        phone: currentUser?.phone || "",
+        address: currentUser?.address || ""
+      }
     }, { status: 200 });
 
   } catch (error: any) {
@@ -67,10 +74,26 @@ export async function PUT(req: NextRequest) {
     const userId = payload.userId as string;
 
     await dbConnect();
+
+    const { action, name, activeMonth, password, profileName, profilePassword, profilePhone, profileAddress } = await req.json();
+
+    if (action === 'updateProfile') {
+      const user = await User.findById(userId);
+      if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      
+      if (profileName) user.name = profileName;
+      if (profilePhone !== undefined) user.phone = profilePhone;
+      if (profileAddress !== undefined) user.address = profileAddress;
+      if (profilePassword) {
+        user.passwordHash = await bcrypt.hash(profilePassword, 10);
+      }
+      
+      await user.save();
+      return NextResponse.json({ message: 'Profile updated successfully' }, { status: 200 });
+    }
+
     const mess = await Mess.findOne({ managerId: userId });
     if (!mess) return NextResponse.json({ error: 'Only manager can update settings' }, { status: 403 });
-
-    const { name, activeMonth, password } = await req.json();
 
     if (name) mess.name = name;
     if (activeMonth) mess.initialMonth = activeMonth;

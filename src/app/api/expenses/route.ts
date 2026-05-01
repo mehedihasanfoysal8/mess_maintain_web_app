@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const mess = await Mess.findOne({ members: userId });
     if (!mess) return NextResponse.json({ error: 'No mess found' }, { status: 404 });
 
-    const expenses = await Expense.find({ messId: mess._id }).populate('userId', 'name').sort({ date: -1 });
+    const expenses = await Expense.find({ messId: mess._id }).populate('userId', 'name').sort({ updatedAt: -1 });
 
     const members = await User.find({ _id: { $in: mess.members } }).select('name _id');
 
@@ -31,10 +31,12 @@ export async function GET(req: NextRequest) {
         type: e.type,
         amount: e.amount,
         date: e.date,
-        description: e.description
+        description: e.description,
+        updatedAt: e.updatedAt || e.createdAt
       })),
       members: members,
-      isManager: mess.managerId.toString() === userId
+      isManager: mess.managerId.toString() === userId,
+      currentUser: userId
     }, { status: 200 });
 
   } catch (error: any) {
@@ -64,8 +66,18 @@ export async function POST(req: NextRequest) {
     if (!targetUserId || !type || !amount || !date) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
+    
+    // date might come as DD/MM/YYYY or YYYY-MM-DD.
+    // Let's standardise the parsing
+    let y, m, d;
+    if (date.includes('/')) {
+      [d, m, y] = date.split('/');
+    } else {
+      [y, m, d] = date.split('-');
+    }
+    
+    const standardDate = `${y}-${m}-${d}`;
 
-    const [y, m, d] = date.split('-');
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const calculatedMonth = `${months[parseInt(m, 10) - 1]} ${y}`;
 
@@ -74,12 +86,68 @@ export async function POST(req: NextRequest) {
       userId: targetUserId,
       type,
       amount: Number(amount),
-      date,
+      date: standardDate,
       description,
       month: calculatedMonth
     });
 
     return NextResponse.json({ message: 'Expense added successfully', expense }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const token = req.cookies.get('auth_token')?.value;
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const userId = payload.userId as string;
+
+    await dbConnect();
+    const mess = await Mess.findOne({ members: userId });
+    if (!mess) return NextResponse.json({ error: 'No mess found' }, { status: 404 });
+
+    if (mess.managerId.toString() !== userId) {
+      return NextResponse.json({ error: 'Only manager can update expenses' }, { status: 403 });
+    }
+
+    const { id, targetUserId, type, amount, date, description } = await req.json();
+
+    if (!id || !targetUserId || !type || !amount || !date) {
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    }
+    
+    let y, m, d;
+    if (date.includes('/')) {
+      [d, m, y] = date.split('/');
+    } else {
+      [y, m, d] = date.split('-');
+    }
+    const standardDate = `${y}-${m}-${d}`;
+
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const calculatedMonth = `${months[parseInt(m, 10) - 1]} ${y}`;
+
+    const expense = await Expense.findOneAndUpdate(
+      { _id: id, messId: mess._id },
+      {
+        userId: targetUserId,
+        type,
+        amount: Number(amount),
+        date: standardDate,
+        description,
+        month: calculatedMonth
+      },
+      { new: true }
+    );
+
+    if (!expense) {
+      return NextResponse.json({ error: 'Expense not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Expense updated successfully', expense }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

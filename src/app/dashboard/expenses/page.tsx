@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Receipt, Search, ChevronLeft, ChevronRight, X, Loader2, Calendar, User, DollarSign, FileText } from "lucide-react";
+import { Plus, Receipt, Search, ChevronLeft, ChevronRight, X, Loader2, Calendar, User, DollarSign, FileText, Edit2 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -10,48 +10,82 @@ function cn(...inputs: ClassValue[]) {
 }
 
 // ─── Modal Component ───────────────────────────────────────────
-function AddExpenseModal({ 
+function ExpenseModal({ 
   isOpen, 
   onClose, 
   members, 
   onSubmit, 
-  submitting 
+  submitting,
+  expenseToEdit,
+  currentUser
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
   members: any[]; 
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: any, id?: string) => Promise<void>;
   submitting: boolean;
+  expenseToEdit: any | null;
+  currentUser?: string;
 }) {
+  const getTodayStr = () => { 
+    const d = new Date(); 
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; 
+  };
+
   const [formData, setFormData] = useState({
     targetUserId: "",
     type: "Deposit",
     amount: "",
-    date: new Date().toISOString().split('T')[0],
+    date: "",
     description: ""
   });
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (members.length > 0 && !formData.targetUserId) {
-      setFormData(prev => ({ ...prev, targetUserId: members[0]._id }));
+    if (isOpen) {
+      if (expenseToEdit) {
+        let formattedDate = expenseToEdit.date;
+        if (formattedDate && formattedDate.includes('/')) {
+          const parts = formattedDate.split('/');
+          if (parts.length === 3) {
+            formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+          }
+        }
+        setFormData({
+          targetUserId: expenseToEdit.userId,
+          type: expenseToEdit.type,
+          amount: expenseToEdit.amount.toString(),
+          date: formattedDate,
+          description: expenseToEdit.description || ""
+        });
+      } else {
+        setFormData({
+          targetUserId: currentUser || (members.length > 0 ? members[0]._id : ""),
+          type: "Deposit",
+          amount: "",
+          date: getTodayStr(),
+          description: ""
+        });
+      }
+      setError("");
     }
-  }, [members]);
+  }, [isOpen, expenseToEdit, members, currentUser]);
+
+  const displayDate = useMemo(() => {
+    if (!formData.date) return "";
+    const [y, m, d] = formData.date.split('-');
+    if (!y || !m || !d) return formData.date;
+    return `${d}/${m}/${y}`;
+  }, [formData.date]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     try {
-      await onSubmit(formData);
-      setFormData({
-        targetUserId: members[0]?._id || "",
-        type: "Deposit",
-        amount: "",
-        date: new Date().toISOString().split('T')[0],
-        description: ""
-      });
+      await onSubmit(formData, expenseToEdit?._id);
       onClose();
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -63,7 +97,11 @@ function AddExpenseModal({
       <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-            <Plus className="text-indigo-600 dark:text-indigo-400" size={24} /> Add New Expense
+            {expenseToEdit ? (
+              <><Edit2 className="text-indigo-600 dark:text-indigo-400" size={24} /> Edit Expense</>
+            ) : (
+              <><Plus className="text-indigo-600 dark:text-indigo-400" size={24} /> Add New Expense</>
+            )}
           </h3>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
             <X size={20} className="text-slate-500" />
@@ -88,6 +126,7 @@ function AddExpenseModal({
                 onChange={e => setFormData({...formData, targetUserId: e.target.value})}
                 required
               >
+                <option value="" disabled>Select a member</option>
                 {members.map(m => (
                   <option key={m._id} value={m._id}>{m.name}</option>
                 ))}
@@ -161,7 +200,7 @@ function AddExpenseModal({
               disabled={submitting}
               className="w-full bg-indigo-600 dark:bg-indigo-500 text-white px-4 py-4 rounded-2xl text-base font-bold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all disabled:opacity-70 flex justify-center items-center shadow-lg shadow-indigo-200 dark:shadow-none active:scale-[0.98]"
             >
-              {submitting ? <Loader2 className="animate-spin" size={24} /> : "Save Transaction"}
+              {submitting ? <Loader2 className="animate-spin" size={24} /> : (expenseToEdit ? "Update Transaction" : "Save Transaction")}
             </button>
           </div>
         </form>
@@ -175,9 +214,11 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
   const [isManager, setIsManager] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [expenseToEdit, setExpenseToEdit] = useState<any>(null);
   
   // Tabs & Filters
   const [activeTab, setActiveTab] = useState<string>("All");
@@ -195,6 +236,7 @@ export default function ExpensesPage() {
         setExpenses(data.expenses || []);
         setMembers(data.members || []);
         setIsManager(data.isManager);
+        setCurrentUser(data.currentUser);
       }
     } catch (err) {
       console.error(err);
@@ -207,17 +249,21 @@ export default function ExpensesPage() {
     fetchData();
   }, []);
 
-  const handleAddExpense = async (formData: any) => {
+  const handleSaveExpense = async (formData: any, id?: string) => {
     setSubmitting(true);
     try {
-      const res = await fetch("/api/expenses", {
-        method: "POST",
+      const url = "/api/expenses";
+      const method = id ? "PUT" : "POST";
+      const body = id ? JSON.stringify({ ...formData, id }) : JSON.stringify(formData);
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body,
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to add expense");
+      if (!res.ok) throw new Error(data.error || "Failed to save expense");
       
       await fetchData();
     } catch (err: any) {
@@ -225,6 +271,16 @@ export default function ExpensesPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const openAddModal = () => {
+    setExpenseToEdit(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (expense: any) => {
+    setExpenseToEdit(expense);
+    setIsModalOpen(true);
   };
 
   // Filtered Data
@@ -238,7 +294,7 @@ export default function ExpensesPage() {
           exp.amount.toString().includes(searchQuery);
         return matchesTab && matchesSearch;
       })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Latest first
+      .sort((a, b) => new Date(b.updatedAt || b.date).getTime() - new Date(a.updatedAt || a.date).getTime()); // Latest updated first
   }, [expenses, activeTab, searchQuery]);
 
   // Pagination Logic
@@ -276,7 +332,7 @@ export default function ExpensesPage() {
         </div>
         {isManager && (
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={openAddModal}
             className="group bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3.5 rounded-2xl text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all flex items-center gap-2 shadow-xl shadow-slate-200 dark:shadow-none active:scale-[0.98]"
           >
             <Plus size={20} className="transition-transform group-hover:rotate-90" /> 
@@ -325,12 +381,13 @@ export default function ExpensesPage() {
                 <th className="px-6 py-5">Type</th>
                 <th className="px-6 py-5">Amount</th>
                 <th className="px-8 py-5">Description</th>
+                {isManager && <th className="px-6 py-5 text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {paginatedExpenses.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-8 py-20 text-center">
+                  <td colSpan={isManager ? 5 : 4} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center space-y-3">
                       <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full">
                         <Receipt size={32} className="text-slate-300" />
@@ -350,7 +407,7 @@ export default function ExpensesPage() {
                         <div>
                           <p className="font-bold text-slate-800 dark:text-white">{expense.userName}</p>
                           <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                            <Calendar size={12} /> {new Date(expense.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            <Calendar size={12} /> {new Date(expense.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </p>
                         </div>
                       </div>
@@ -379,6 +436,17 @@ export default function ExpensesPage() {
                         {expense.description || <span className="text-slate-300 italic">No description</span>}
                       </p>
                     </td>
+                    {isManager && (
+                      <td className="px-6 py-6 text-right">
+                        <button
+                          onClick={() => openEditModal(expense)}
+                          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-colors"
+                          title="Edit Expense"
+                        >
+                          <Edit2 size={18} />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -428,13 +496,15 @@ export default function ExpensesPage() {
         )}
       </div>
 
-      {/* Add Expense Modal */}
-      <AddExpenseModal 
+      {/* Add/Edit Expense Modal */}
+      <ExpenseModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         members={members}
-        onSubmit={handleAddExpense}
+        onSubmit={handleSaveExpense}
         submitting={submitting}
+        expenseToEdit={expenseToEdit}
+        currentUser={currentUser}
       />
     </div>
   );
