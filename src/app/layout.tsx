@@ -22,7 +22,6 @@ export default function RootLayout({
       <body suppressHydrationWarning className={`${inter.className} bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased transition-colors duration-500 ease-in-out`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
-
         </ThemeProvider>
       </body>
     </html>

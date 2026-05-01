@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PlusCircle, UserPlus, AlertCircle, Loader2, ChevronLeft, ChevronRight, PieChart as PieChartIcon, BarChart2, List, TrendingUp } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
+import MonthDropdown from "@/components/MonthDropdown";
 
 export default function DashboardIndex() {
   const [data, setData] = useState<any>(null);
@@ -91,7 +92,6 @@ export default function DashboardIndex() {
 
   const { mess, personal, summary } = data || { mess: {}, personal: {}, summary: {} };
 
-  console.log(personal);
   // Months for selector
   const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const currentYear = new Date().getFullYear();
@@ -125,50 +125,101 @@ export default function DashboardIndex() {
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.updatedAt || b.date).getTime() - new Date(a.updatedAt || a.date).getTime());
   const totalPages = Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE);
   const paginatedExpenses = sortedExpenses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10">
       {/* Mess Overview Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-700 dark:to-violet-800 rounded-[2rem] p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="relative z-10 space-y-2">
-          <div className="flex items-center gap-3">
-            <p className="text-indigo-100 dark:text-indigo-200 font-bold uppercase tracking-widest text-xs bg-white/10 px-3 py-1 rounded-full">Active Mess</p>
+      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-700 dark:to-violet-800 rounded-[1.5rem] p-5 sm:p-6 md:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-2xl relative overflow-visible">
+
+        {/* Blur circle */}
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 sm:w-56 sm:h-56 md:w-64 md:h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+
+        {/* LEFT */}
+        <div className="relative z-20 space-y-2 w-full">
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <p className="text-indigo-100 dark:text-indigo-200 font-bold uppercase tracking-widest text-[10px] sm:text-xs bg-white/10 px-3 py-1 rounded-full whitespace-nowrap">
+              Active Mess
+            </p>
             {loading && <Loader2 className="animate-spin text-white/50" size={16} />}
           </div>
-          <h2 className="text-4xl font-black">{mess.name}</h2>
 
-          <div className="flex flex-wrap items-center gap-4 mt-4">
-            <div className="flex items-center gap-2 bg-black/20 px-4 py-2 rounded-xl border border-white/10">
-              <p className="text-sm text-indigo-100 font-medium">Viewing:</p>
-              <select
+          {/* Title */}
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black break-words">
+            {mess.name}
+          </h2>
+
+          {/* Filter row */}
+          <div className="flex flex-col sm:flex-row w-full justify-between items-start sm:items-center gap-3 sm:gap-4 mt-4">
+
+            <div className="flex items-center gap-2 bg-black/20 px-3 sm:px-4 py-2 rounded-xl border border-white/10 w-full sm:w-auto z-[9999999999]">
+              <p className="text-xs sm:text-sm text-indigo-100 font-medium whitespace-nowrap">
+                Viewing:
+              </p>
+
+              {/* <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="bg-transparent font-bold text-white outline-none border-none cursor-pointer focus:ring-0 appearance-none pr-6 relative"
-                style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'white\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', backgroundSize: '1rem' }}
+                className="bg-transparent font-bold text-white outline-none border-none cursor-pointer focus:ring-0 appearance-none pr-6 text-sm sm:text-base w-full"
+                style={{
+                  backgroundImage:
+                    'url("data:image/svg+xml,%3Csvg xmlns=\\\'http://www.w3.org/2000/svg\\\' fill=\\\'none\\\' viewBox=\\\'0 0 24 24\\\' stroke=\\\'white\\\'%3E%3Cpath stroke-linecap=\\\'round\\\' stroke-linejoin=\\\'round\\\' stroke-width=\\\'2\\\' d=\\\'M19 9l-7 7-7-7\\\'/%3E%3C/svg%3E")',
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right center",
+                  backgroundSize: "1rem",
+                }}
               >
-                {yearOptions.map(y => monthsArr.map(m => (
-                  <option key={`${m} ${y}`} value={`${m} ${y}`} className="text-slate-900">{m} {y}</option>
-                )))}
-              </select>
+                {yearOptions.map((y) =>
+                  monthsArr.map((m) => (
+                    <option
+                      key={`${m} ${y}`}
+                      value={`${m} ${y}`}
+                      className="bg-white text-slate-900 font-semibold text-sm sm:text-base py-2"
+                    >
+                      {m} {y}
+                    </option>
+                  ))
+                )}
+              </select> */}
+              <MonthDropdown n
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+                monthsArr={monthsArr}
+                yearOptions={yearOptions}
+                width="w-full sm:w-56"
+              />
             </div>
 
             {mess?.activeMonth !== selectedMonth && (
-              <p className="text-xs text-indigo-200/80 italic">Default mess month: {mess.activeMonth}</p>
+              <p className="text-[11px] sm:text-xs text-indigo-200/80 italic">
+                Default mess month: {mess.activeMonth}
+              </p>
             )}
           </div>
         </div>
 
-        <div className="mt-8 md:mt-0 flex gap-6 bg-white/10 dark:bg-black/20 p-6 rounded-3xl backdrop-blur-md border border-white/20 shadow-inner relative z-10">
-          <div className="text-center px-2">
-            <p className="text-xs text-indigo-200 mb-2 font-bold uppercase tracking-tighter">Your Role</p>
-            <p className="text-xl font-black">{mess.role}</p>
+        {/* RIGHT CARD */}
+        <div className="mt-6 md:mt-0 flex w-full z-10 md:w-fit justify-between sm:justify-start gap-4 sm:gap-6 bg-white/10 dark:bg-black/20 p-4 sm:p-5 md:p-6 rounded-3xl backdrop-blur-md border border-white/20 shadow-inner z-10">
+
+          <div className="text-center px-2 flex-1">
+            <p className="text-[10px] sm:text-xs text-indigo-200 mb-2 font-bold uppercase tracking-tighter">
+              Your Role
+            </p>
+            <p className="text-lg sm:text-xl font-black break-words">
+              {mess.role}
+            </p>
           </div>
+
           <div className="w-px bg-white/20"></div>
-          <div className="text-center px-2">
-            <p className="text-xs text-indigo-200 mb-2 font-bold uppercase tracking-tighter">Members</p>
-            <p className="text-xl font-black">{mess.membersCount}</p>
+
+          <div className="text-center px-2 flex-1">
+            <p className="text-[10px] sm:text-xs text-indigo-200 mb-2 font-bold uppercase tracking-tighter">
+              Members
+            </p>
+            <p className="text-lg sm:text-xl font-black">
+              {mess.membersCount}
+            </p>
           </div>
+
         </div>
       </div>
 
@@ -177,10 +228,11 @@ export default function DashboardIndex() {
         <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <TrendingUp size={20} className="text-indigo-600 dark:text-indigo-400" /> Personal Stats
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
           <StatCard title="My Deposit" value={`৳${personal.myDeposit}`} bg="bg-blue-50 dark:bg-blue-900/20" color="text-blue-700 dark:text-blue-400" borderColor="border-blue-100 dark:border-blue-800/50" />
           <StatCard title="My Meals" value={`${personal.myMeals}`} bg="bg-emerald-50 dark:bg-emerald-900/20" color="text-emerald-700 dark:text-emerald-400" borderColor="border-emerald-100 dark:border-emerald-800/50" />
           <StatCard title="My Individual Cost" value={`৳${personal.individualCost}`} bg="bg-amber-50 dark:bg-amber-900/20" color="text-amber-700 dark:text-amber-400" borderColor="border-amber-100 dark:border-amber-800/50" />
+          <StatCard title="My Shared Cost" value={`৳${personal.sharedCostPerPerson}`} bg="bg-yellow-50 dark:bg-yellow-900/20" color="text-yellow-700 dark:text-yellow-400" borderColor="border-yellow-100 dark:border-yellow-800/50" />
           <StatCard title="My Balance" value={`${personal.balance >= 0 ? '+' : ''}৳${personal.balance}`} bg={personal.balance >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={personal.balance >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={personal.balance >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
         </div>
       </div>
@@ -373,7 +425,7 @@ function SummaryItem({ label, value, color = "text-slate-800 dark:text-white" }:
 function StatCard({ title, value, bg, color, borderColor }: { title: string, value: string, bg: string, color: string, borderColor: string }) {
   return (
     <div className={`${bg} p-6 rounded-2xl border ${borderColor} shadow-sm transition-all hover:scale-[1.02]`}>
-      <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">{title}</p>
+      <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2 line-clamp-1">{title}</p>
       <p className={`text-3xl font-bold ${color}`}>{value}</p>
     </div>
   );

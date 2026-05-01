@@ -169,7 +169,8 @@ export async function GET(req: NextRequest) {
         myMeals,
         mealRate: Number(mealRate.toFixed(2)),
         balance: Number(myBalance.toFixed(2)),
-        individualCost: Number(myIndividualCost.toFixed(2))
+        individualCost: Number(myIndividualCost.toFixed(2)),
+        sharedCostPerPerson: Number(sharedCostPerPerson.toFixed(2))
       },
       summary: {
         totalMeals,

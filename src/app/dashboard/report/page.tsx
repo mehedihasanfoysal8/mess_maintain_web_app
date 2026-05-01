@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Download, Loader2, FileText, Calendar } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import MonthDropdown from "@/components/MonthDropdown";
 
 export default function ReportPage() {
   const [loading, setLoading] = useState(false);
@@ -242,7 +243,7 @@ export default function ReportPage() {
               <Calendar size={16} /> Select Month
             </label>
             <div className="relative">
-              <select
+              {/* <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 className="w-full pl-4 pr-10 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all appearance-none"
@@ -250,7 +251,15 @@ export default function ReportPage() {
                 {yearOptions.map(y => monthsArr.map(m => (
                   <option key={`${m} ${y}`} value={`${m} ${y}`}>{m} {y}</option>
                 )))}
-              </select>
+              </select> */}
+
+              <MonthDropdown
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+                monthsArr={monthsArr}
+                yearOptions={yearOptions}
+                width="w-full sm:w-100"
+              />
             </div>
           </div>
 
