@@ -27,7 +27,7 @@ export default function DashboardIndex() {
         fetch(`/api/dashboard?month=${encodeURIComponent(month)}`),
         fetch("/api/expenses")
       ]);
-      
+
       if (dashRes.ok) {
         const dashJson = await dashRes.json();
         setData(dashJson);
@@ -67,7 +67,7 @@ export default function DashboardIndex() {
         <p className="text-slate-500 dark:text-slate-400 max-w-lg mb-10 text-lg">
           It looks like you aren't part of any mess yet. You can either create a new mess as a manager, or join an existing one as a member.
         </p>
-        
+
         <div className="grid md:grid-cols-2 gap-6 w-full max-w-2xl">
           <Link href="/dashboard/create-mess" className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-lg transition-all text-left block">
             <div className="bg-indigo-100 dark:bg-indigo-900/50 w-14 h-14 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:scale-110 transition-transform">
@@ -76,7 +76,7 @@ export default function DashboardIndex() {
             <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Create New Mess</h3>
             <p className="text-slate-500 dark:text-slate-400">Set up a new shared space, invite members, and start tracking expenses automatically.</p>
           </Link>
-          
+
           <Link href="/dashboard/join-mess" className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg transition-all text-left block">
             <div className="bg-emerald-100 dark:bg-emerald-900/50 w-14 h-14 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
               <UserPlus size={28} />
@@ -91,6 +91,7 @@ export default function DashboardIndex() {
 
   const { mess, personal, summary } = data || { mess: {}, personal: {}, summary: {} };
 
+  console.log(personal);
   // Months for selector
   const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const currentYear = new Date().getFullYear();
@@ -115,13 +116,13 @@ export default function DashboardIndex() {
     }
     return acc;
   }, {});
-  
+
   const barData = Object.values(groupedByDate)
     .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(-15);
 
   // Sorting and Pagination Logic
-  const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sortedExpenses = [...expenses].sort((a, b) => new Date(b.updatedAt || b.date).getTime() - new Date(a.updatedAt || a.date).getTime());
   const totalPages = Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE);
   const paginatedExpenses = sortedExpenses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -136,11 +137,11 @@ export default function DashboardIndex() {
             {loading && <Loader2 className="animate-spin text-white/50" size={16} />}
           </div>
           <h2 className="text-4xl font-black">{mess.name}</h2>
-          
+
           <div className="flex flex-wrap items-center gap-4 mt-4">
             <div className="flex items-center gap-2 bg-black/20 px-4 py-2 rounded-xl border border-white/10">
               <p className="text-sm text-indigo-100 font-medium">Viewing:</p>
-              <select 
+              <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 className="bg-transparent font-bold text-white outline-none border-none cursor-pointer focus:ring-0 appearance-none pr-6 relative"
@@ -151,13 +152,13 @@ export default function DashboardIndex() {
                 )))}
               </select>
             </div>
-            
-            {mess.activeMonth !== selectedMonth && (
+
+            {mess?.activeMonth !== selectedMonth && (
               <p className="text-xs text-indigo-200/80 italic">Default mess month: {mess.activeMonth}</p>
             )}
           </div>
         </div>
-        
+
         <div className="mt-8 md:mt-0 flex gap-6 bg-white/10 dark:bg-black/20 p-6 rounded-3xl backdrop-blur-md border border-white/20 shadow-inner relative z-10">
           <div className="text-center px-2">
             <p className="text-xs text-indigo-200 mb-2 font-bold uppercase tracking-tighter">Your Role</p>
@@ -179,8 +180,8 @@ export default function DashboardIndex() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           <StatCard title="My Deposit" value={`৳${personal.myDeposit}`} bg="bg-blue-50 dark:bg-blue-900/20" color="text-blue-700 dark:text-blue-400" borderColor="border-blue-100 dark:border-blue-800/50" />
           <StatCard title="My Meals" value={`${personal.myMeals}`} bg="bg-emerald-50 dark:bg-emerald-900/20" color="text-emerald-700 dark:text-emerald-400" borderColor="border-emerald-100 dark:border-emerald-800/50" />
-          <StatCard title="Meal Rate" value={`৳${personal.mealRate}`} bg="bg-amber-50 dark:bg-amber-900/20" color="text-amber-700 dark:text-amber-400" borderColor="border-amber-100 dark:border-amber-800/50" />
-          <StatCard title="Balance" value={`${personal.balance >= 0 ? '+' : ''}৳${personal.balance}`} bg={personal.balance >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={personal.balance >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={personal.balance >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
+          <StatCard title="My Individual Cost" value={`৳${personal.individualCost}`} bg="bg-amber-50 dark:bg-amber-900/20" color="text-amber-700 dark:text-amber-400" borderColor="border-amber-100 dark:border-amber-800/50" />
+          <StatCard title="My Balance" value={`${personal.balance >= 0 ? '+' : ''}৳${personal.balance}`} bg={personal.balance >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={personal.balance >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={personal.balance >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
         </div>
       </div>
 
@@ -190,16 +191,16 @@ export default function DashboardIndex() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
             <SummaryItem label="Total Meals" value={`${summary.totalMeals}`} />
+            <SummaryItem label="Meal Rate" value={`৳${personal.mealRate}`} />
             <SummaryItem label="Total Deposits" value={`৳${summary.totalDeposits}`} color="text-emerald-600 dark:text-emerald-400" />
             <SummaryItem label="Mess Meal Cost" value={`৳${summary.messMealCost}`} color="text-rose-600 dark:text-rose-400" />
-            <SummaryItem label="Total Shared Cost" value={`৳${summary.totalSharedCost}`} color="text-rose-600 dark:text-rose-400" />
-            
+
             <div className="hidden md:block col-span-4 h-px bg-slate-100 dark:bg-slate-800"></div>
-            
-            <SummaryItem label="Individual Cost" value={`৳${summary.messIndividualCost}`} color="text-rose-600 dark:text-rose-400" />
-            <SummaryItem label="Total All Cost" value={`৳${summary.totalAllCost}`} color="text-indigo-600 dark:text-indigo-400" />
+
+            <SummaryItem label="Total Individual Cost" value={`৳${summary.messIndividualCost}`} color="text-rose-600 dark:text-rose-400" />
+            <SummaryItem label="Total Cost" value={`৳${summary.totalAllCost}`} color="text-indigo-600 dark:text-indigo-400" />
             <SummaryItem label="Mess Balance" value={`${summary.messBalance >= 0 ? '+' : ''}৳${summary.messBalance}`} color={summary.messBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} />
-            <SummaryItem label="Total Members" value={`${summary.totalMembers}`} />
+            <SummaryItem label="Total Shared Cost" value={`৳${summary.totalSharedCost}`} color="text-rose-600 dark:text-rose-400" />
           </div>
         </div>
       </div>
@@ -227,7 +228,7 @@ export default function DashboardIndex() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value: any) => `৳${value}`}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   />
@@ -252,10 +253,10 @@ export default function DashboardIndex() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="date" tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} />
-                  <YAxis tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} tickFormatter={(val) => `৳${val}`} />
-                  <Tooltip 
-                    cursor={{fill: 'transparent'}}
+                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#64748b' }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 12, fill: '#64748b' }} tickLine={false} axisLine={false} tickFormatter={(val) => `৳${val}`} />
+                  <Tooltip
+                    cursor={{ fill: 'transparent' }}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   />
                   <Legend verticalAlign="top" height={36} />
@@ -282,7 +283,7 @@ export default function DashboardIndex() {
             View All
           </Link>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
@@ -301,7 +302,7 @@ export default function DashboardIndex() {
               ) : (
                 paginatedExpenses.map((expense) => (
                   <tr key={expense._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{expense.date.split('T')[0]}</td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{new Date(expense.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                     <td className="px-6 py-4 font-medium text-slate-800 dark:text-white">{expense.userName || 'Unknown'}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border
@@ -313,8 +314,13 @@ export default function DashboardIndex() {
                         {expense.type}
                       </span>
                     </td>
-                    <td className={`px-6 py-4 font-semibold text-right ${expense.type === 'Deposit' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-white'}`}>
-                      {expense.type === 'Deposit' ? '+' : ''}৳{expense.amount}
+                    <td className={`px-6 py-4 font-semibold text-right ${expense.amount < 0
+                      ? 'text-rose-600 dark:text-rose-400'
+                      : expense.type === 'Deposit'
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-slate-800 dark:text-white'
+                      }`}>
+                      {expense.type === 'Deposit' && expense.amount > 0 ? '+' : ''}{expense.amount < 0 ? '-' : ''}৳{Math.abs(expense.amount).toLocaleString()}
                     </td>
                   </tr>
                 ))
@@ -322,7 +328,7 @@ export default function DashboardIndex() {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination Controls */}
         {totalPages > 1 && (
           <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/30">
@@ -330,7 +336,7 @@ export default function DashboardIndex() {
               Showing <span className="font-medium text-slate-800 dark:text-white">{((currentPage - 1) * ITEMS_PER_PAGE) + 1}</span> to <span className="font-medium text-slate-800 dark:text-white">{Math.min(currentPage * ITEMS_PER_PAGE, expenses.length)}</span> of <span className="font-medium text-slate-800 dark:text-white">{expenses.length}</span> transactions
             </p>
             <div className="flex items-center gap-2">
-              <button 
+              <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent"
@@ -340,7 +346,7 @@ export default function DashboardIndex() {
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300 px-2">
                 Page {currentPage} of {totalPages}
               </span>
-              <button 
+              <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent"

@@ -59,16 +59,17 @@ export function LandingNavbar() {
           MessMaintain
         </span>
       </Link>
-      
+
       <div className="flex items-center gap-2 sm:gap-6">
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-6 mr-2">
           <Link href="#features" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</Link>
           <Link href="#how-it-works" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">How it works</Link>
+          <Link href="contact" className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contact</Link>
         </div>
 
         <ThemeToggle />
-        
+
         <div className="flex items-center gap-2 sm:gap-4 border-l border-slate-200 dark:border-slate-800 pl-2 sm:pl-6">
           {loading ? (
             <div className="w-10 flex justify-center">
@@ -77,7 +78,7 @@ export function LandingNavbar() {
           ) : user ? (
             /* Logged In State with Dropdown */
             <div className="relative" ref={dropdownRef}>
-              <button 
+              <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
               >
@@ -94,9 +95,9 @@ export function LandingNavbar() {
                     <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-0.5">Logged in as</p>
                     <p className="text-sm font-bold text-slate-900 dark:text-white uppercase">Hi Sir, {user.name}</p>
                   </div>
-                  
-                  <Link 
-                    href="/dashboard" 
+
+                  <Link
+                    href="/dashboard"
                     className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                     onClick={() => setIsDropdownOpen(false)}
                   >
@@ -106,7 +107,7 @@ export function LandingNavbar() {
                     Go to Dashboard
                   </Link>
 
-                  <button 
+                  <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors"
                   >

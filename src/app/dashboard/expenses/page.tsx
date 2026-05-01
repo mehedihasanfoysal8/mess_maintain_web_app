@@ -426,9 +426,13 @@ export default function ExpensesPage() {
                     <td className="px-6 py-6">
                       <p className={cn(
                         "text-lg font-black",
-                        expense.type === 'Deposit' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white'
+                        expense.amount < 0 
+                          ? 'text-rose-600 dark:text-rose-400'
+                          : expense.type === 'Deposit' 
+                            ? 'text-emerald-600 dark:text-emerald-400' 
+                            : 'text-slate-900 dark:text-white'
                       )}>
-                        {expense.type === 'Deposit' ? '+' : ''}৳{expense.amount.toLocaleString()}
+                        {expense.type === 'Deposit' && expense.amount > 0 ? '+' : ''}{expense.amount < 0 ? '-' : ''}৳{Math.abs(expense.amount).toLocaleString()}
                       </p>
                     </td>
                     <td className="px-8 py-6">

@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description: "A modern web application designed to simplify shared living management.",
 };
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,9 +18,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased transition-colors duration-500 ease-in-out`}>
+      <link rel="icon" href="/logo.png" type="image/png" sizes="32x32" />
+      <body suppressHydrationWarning className={`${inter.className} bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased transition-colors duration-500 ease-in-out`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+
         </ThemeProvider>
       </body>
     </html>
