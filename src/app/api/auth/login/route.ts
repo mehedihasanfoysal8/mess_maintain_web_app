@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       .setExpirationTime('7d')
       .sign(JWT_SECRET);
 
-    const response = NextResponse.json({ message: 'Login successful' }, { status: 200 });
+    const response = NextResponse.json({ message: 'Login successful', token: token }, { status: 200 });
     response.cookies.set({
       name: 'auth_token',
       value: token,

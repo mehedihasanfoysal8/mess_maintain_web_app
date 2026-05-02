@@ -327,11 +327,9 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30
-        transform transition-all duration-300 ease-in-out will-change-transform
-        ${isMobileSidebarOpen || isDesktopSidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full"
-          } flex flex-col`}
+        transform transition-all duration-300 ease-in-out will-change-transform flex flex-col
+        ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        ${isDesktopSidebarOpen ? "md:translate-x-0" : "md:-translate-x-full"}`}
       >
         {/* Logo */}
         <div className="px-6 py-[21px] border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
