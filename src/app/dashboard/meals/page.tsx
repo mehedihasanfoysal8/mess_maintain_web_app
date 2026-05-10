@@ -92,7 +92,7 @@ function DailyEntry({ today }: { today: string }) {
       setIsManager(data.isManager);
       const init: DailyState = {};
       data.members.forEach((m: Member) => { init[m._id] = { breakfast: 0, lunch: 0, dinner: 0 }; });
-      // DO NOT populate with existing meals. The user wants this to be a purely additive ledger that always starts at 0.
+      // Always start at 0 — daily entry is a fresh additive form each time
       setMeals(init);
     } finally { setLoading(false); }
   }, [date]);
@@ -118,8 +118,8 @@ function DailyEntry({ today }: { today: string }) {
         body: JSON.stringify({ date, mealData }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
-      setMessage("✓ Meals saved!");
-      // Reset all to 0
+      setMessage("✓ Meals updated!");
+      // Reset all to 0 after save so the form feels like a fresh entry
       const cleared: DailyState = {};
       members.forEach(m => { cleared[m._id] = { breakfast: 0, lunch: 0, dinner: 0 }; });
       setMeals(cleared);

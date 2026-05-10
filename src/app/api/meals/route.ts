@@ -89,13 +89,13 @@ export async function POST(req: NextRequest) {
           updateOne: {
             filter: { messId: messObjectId, userId: new mongoose.Types.ObjectId(md.userId), date },
             update: { 
-              $inc: { 
+              $set: { 
                 mealCount, 
                 breakfast: Number(md.breakfast || 0), 
                 lunch: Number(md.lunch || 0), 
-                dinner: Number(md.dinner || 0) 
+                dinner: Number(md.dinner || 0),
+                month,
               },
-              $setOnInsert: { month }
             },
             upsert: true,
           },
