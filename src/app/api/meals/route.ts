@@ -79,6 +79,15 @@ export async function POST(req: NextRequest) {
 
     const messObjectId = new mongoose.Types.ObjectId(mess._id.toString());
 
+    // Separate zero-entries (delete them) from non-zero entries (upsert them)
+    const zeroUserIds = mealData
+      .filter((md: any) => Number(md.breakfast || 0) === 0 && Number(md.lunch || 0) === 0 && Number(md.dinner || 0) === 0)
+      .map((md: any) => new mongoose.Types.ObjectId(md.userId));
+
+    if (zeroUserIds.length > 0) {
+      await Meal.deleteMany({ messId: messObjectId, date, userId: { $in: zeroUserIds } });
+    }
+
     const bulkOps = mealData
       .filter((md: any) => Number(md.breakfast || 0) > 0 || Number(md.lunch || 0) > 0 || Number(md.dinner || 0) > 0)
       .map((md: any) => {
@@ -107,6 +116,43 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ message: 'Meals saved successfully' });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// DELETE /api/meals?date=YYYY-MM-DD&userId=xxx  — remove a single user's meal entry
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const date = searchParams.get('date');
+    const targetUserId = searchParams.get('userId');
+
+    if (!date || !targetUserId) {
+      return NextResponse.json({ error: 'date and userId are required' }, { status: 400 });
+    }
+
+    const token = req.cookies.get('auth_token')?.value;
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const userId = payload.userId as string;
+
+    await dbConnect();
+    const mess = await Mess.findOne({ members: userId });
+    if (!mess) return NextResponse.json({ error: 'No mess found' }, { status: 404 });
+
+    if (mess.managerId.toString() !== userId) {
+      return NextResponse.json({ error: 'Only manager can delete meals' }, { status: 403 });
+    }
+
+    await Meal.deleteOne({
+      messId: mess._id,
+      userId: new mongoose.Types.ObjectId(targetUserId),
+      date,
+    });
+
+    return NextResponse.json({ message: 'Meal entry deleted' });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

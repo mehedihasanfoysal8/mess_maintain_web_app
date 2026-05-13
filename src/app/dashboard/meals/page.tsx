@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Utensils, CalendarDays, Loader2, Save, Minus, Plus, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { Utensils, CalendarDays, Loader2, Save, Minus, Plus, ChevronLeft, ChevronRight, RefreshCw, Trash2 } from "lucide-react";
 
 // ─── Types ───────────────────────────────
 interface Member { _id: string; name: string; }
 interface MealEntry { breakfast: number; lunch: number; dinner: number; }
 type DailyState = Record<string, MealEntry>;
+type SavedSet = Set<string>; // userIds that already have a DB record for the date
 
 // ─── Compact +/- Counter ─────────────────
 function Counter({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -77,9 +78,11 @@ function DailyEntry({ today }: { today: string }) {
   const [date, setDate] = useState(today);
   const [members, setMembers] = useState<Member[]>([]);
   const [meals, setMeals] = useState<DailyState>({});
+  const [savedUsers, setSavedUsers] = useState<SavedSet>(new Set());
   const [isManager, setIsManager] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
   const fetchData = useCallback(async () => {
@@ -90,10 +93,20 @@ function DailyEntry({ today }: { today: string }) {
       const data = await res.json();
       setMembers(data.members || []);
       setIsManager(data.isManager);
+
+      // Build initial state: start at 0 for everyone
       const init: DailyState = {};
       data.members.forEach((m: Member) => { init[m._id] = { breakfast: 0, lunch: 0, dinner: 0 }; });
-      // Always start at 0 — daily entry is a fresh additive form each time
+
+      // Overlay with existing DB records so manager can see what's already saved
+      const alreadySaved = new Set<string>();
+      (data.meals || []).forEach((m: any) => {
+        init[m.userId] = { breakfast: m.breakfast, lunch: m.lunch, dinner: m.dinner };
+        alreadySaved.add(m.userId);
+      });
+
       setMeals(init);
+      setSavedUsers(alreadySaved);
     } finally { setLoading(false); }
   }, [date]);
 
@@ -118,15 +131,27 @@ function DailyEntry({ today }: { today: string }) {
         body: JSON.stringify({ date, mealData }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
-      setMessage("✓ Meals updated!");
-      // Reset all to 0 after save so the form feels like a fresh entry
-      const cleared: DailyState = {};
-      members.forEach(m => { cleared[m._id] = { breakfast: 0, lunch: 0, dinner: 0 }; });
-      setMeals(cleared);
+      setMessage("✓ Meals saved!");
+      // Refresh to show updated saved state
+      await fetchData();
       setTimeout(() => setMessage(""), 3000);
     } catch (err: any) {
       setMessage("✗ " + err.message);
     } finally { setSaving(false); }
+  };
+
+  const handleDelete = async (userId: string, memberName: string) => {
+    if (!confirm(`"${memberName}" এর ${date} তারিখের সব meal মুছে ফেলবে?`)) return;
+    setDeletingId(userId);
+    try {
+      const res = await fetch(`/api/meals?date=${date}&userId=${userId}`, { method: "DELETE" });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+      setMessage(`✓ ${memberName} এর meal মুছে ফেলা হয়েছে।`);
+      await fetchData();
+      setTimeout(() => setMessage(""), 4000);
+    } catch (err: any) {
+      setMessage("✗ " + (err as any).message);
+    } finally { setDeletingId(null); }
   };
 
   const colTotal = (f: keyof MealEntry) => members.reduce((s, m) => s + (meals[m._id]?.[f] || 0), 0);
@@ -168,6 +193,7 @@ function DailyEntry({ today }: { today: string }) {
                   <th className="px-4 py-4 font-bold text-slate-700 dark:text-slate-200 text-center">☀️ Lunch</th>
                   <th className="px-4 py-4 font-bold text-slate-700 dark:text-slate-200 text-center">🌙 Dinner</th>
                   <th className="px-4 py-4 font-bold text-slate-700 dark:text-slate-200 text-center">Total</th>
+                  {isManager && <th className="px-4 py-4 font-bold text-slate-700 dark:text-slate-200 text-center">Action</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -181,7 +207,12 @@ function DailyEntry({ today }: { today: string }) {
                           <div className="h-9 w-9 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 flex items-center justify-center text-sm font-bold uppercase flex-shrink-0">
                             {member.name.charAt(0)}
                           </div>
-                          {member.name}
+                          <div>
+                            <div>{member.name}</div>
+                            {savedUsers.has(member._id) && (
+                              <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">✓ Saved</span>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-4"><Counter value={e.breakfast} onChange={v => update(member._id, "breakfast", v)} /></td>
@@ -190,6 +221,20 @@ function DailyEntry({ today }: { today: string }) {
                       <td className="px-4 py-4 text-center">
                         <span className={`inline-flex items-center justify-center h-9 min-w-[36px] rounded-xl text-sm font-bold ${t > 0 ? "bg-indigo-600 dark:bg-indigo-500 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"}`}>{t}</span>
                       </td>
+                      {isManager && (
+                        <td className="px-4 py-4 text-center">
+                          {savedUsers.has(member._id) ? (
+                            <button
+                              onClick={() => handleDelete(member._id, member.name)}
+                              disabled={deletingId === member._id}
+                              title="এই তারিখের meal মুছুন"
+                              className="h-8 w-8 rounded-lg flex items-center justify-center mx-auto text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 hover:text-rose-600 transition-colors disabled:opacity-50"
+                            >
+                              {deletingId === member._id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                            </button>
+                          ) : <span className="text-slate-300 dark:text-slate-700 text-xs">—</span>}
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
@@ -218,7 +263,23 @@ function DailyEntry({ today }: { today: string }) {
                       <div className="h-9 w-9 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 flex items-center justify-center text-sm font-bold uppercase flex-shrink-0">
                         {member.name.charAt(0)}
                       </div>
-                      <span className="font-semibold text-slate-800 dark:text-white text-sm">{member.name}</span>
+                      <div>
+                        <span className="font-semibold text-slate-800 dark:text-white text-sm">{member.name}</span>
+                        {savedUsers.has(member._id) && (
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">✓ Saved</span>
+                            {isManager && (
+                              <button
+                                onClick={() => handleDelete(member._id, member.name)}
+                                disabled={deletingId === member._id}
+                                className="h-5 w-5 rounded flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors disabled:opacity-50"
+                              >
+                                {deletingId === member._id ? <Loader2 size={10} className="animate-spin" /> : <Trash2 size={10} />}
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <span className={`inline-flex items-center justify-center h-8 min-w-[32px] rounded-xl text-sm font-bold ${t > 0 ? "bg-indigo-600 dark:bg-indigo-500 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"}`}>{t}</span>
                   </div>
