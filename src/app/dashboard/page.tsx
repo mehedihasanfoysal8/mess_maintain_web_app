@@ -125,6 +125,7 @@ export default function DashboardIndex() {
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.updatedAt || b.date).getTime() - new Date(a.updatedAt || a.date).getTime());
   const totalPages = Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE);
   const paginatedExpenses = sortedExpenses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const totalMyCost = personal.individualCost + personal.sharedCostPerPerson + personal.mealRate * personal.myMeals;
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10">
       {/* Mess Overview Header */}
@@ -228,12 +229,13 @@ export default function DashboardIndex() {
         <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
           <TrendingUp size={20} className="text-indigo-600 dark:text-indigo-400" /> Personal Stats
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-6">
           <StatCard title="My Deposit" value={`৳${personal.myDeposit}`} bg="bg-blue-50 dark:bg-blue-900/20" color="text-blue-700 dark:text-blue-400" borderColor="border-blue-100 dark:border-blue-800/50" />
           <StatCard title="My Meals" value={`${personal.myMeals}`} bg="bg-emerald-50 dark:bg-emerald-900/20" color="text-emerald-700 dark:text-emerald-400" borderColor="border-emerald-100 dark:border-emerald-800/50" />
           <StatCard title="My Individual Cost" value={`৳${personal.individualCost}`} bg="bg-amber-50 dark:bg-amber-900/20" color="text-amber-700 dark:text-amber-400" borderColor="border-amber-100 dark:border-amber-800/50" />
           <StatCard title="My Shared Cost" value={`৳${personal.sharedCostPerPerson}`} bg="bg-yellow-50 dark:bg-yellow-900/20" color="text-yellow-700 dark:text-yellow-400" borderColor="border-yellow-100 dark:border-yellow-800/50" />
           <StatCard title="My Balance" value={`${personal.balance >= 0 ? '+' : ''}৳${personal.balance}`} bg={personal.balance >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={personal.balance >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={personal.balance >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
+          <StatCard title="My Total Cost" value={`৳${totalMyCost}`} bg={totalMyCost >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={totalMyCost >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={totalMyCost >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
         </div>
       </div>
 
@@ -424,7 +426,7 @@ function SummaryItem({ label, value, color = "text-slate-800 dark:text-white" }:
 
 function StatCard({ title, value, bg, color, borderColor }: { title: string, value: string, bg: string, color: string, borderColor: string }) {
   return (
-    <div className={`${bg} p-6 rounded-2xl border ${borderColor} shadow-sm transition-all hover:scale-[1.02]`}>
+    <div className={`${bg} p-5 rounded-2xl border ${borderColor} shadow-sm transition-all hover:scale-[1.02]`}>
       <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2 line-clamp-1">{title}</p>
       <p className={`text-3xl font-bold ${color}`}>{value}</p>
     </div>
