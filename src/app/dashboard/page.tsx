@@ -234,8 +234,8 @@ export default function DashboardIndex() {
           <StatCard title="My Meals" value={`${personal.myMeals}`} bg="bg-emerald-50 dark:bg-emerald-900/20" color="text-emerald-700 dark:text-emerald-400" borderColor="border-emerald-100 dark:border-emerald-800/50" />
           <StatCard title="My Individual Cost" value={`৳${personal.individualCost}`} bg="bg-amber-50 dark:bg-amber-900/20" color="text-amber-700 dark:text-amber-400" borderColor="border-amber-100 dark:border-amber-800/50" />
           <StatCard title="My Shared Cost" value={`৳${personal.sharedCostPerPerson}`} bg="bg-yellow-50 dark:bg-yellow-900/20" color="text-yellow-700 dark:text-yellow-400" borderColor="border-yellow-100 dark:border-yellow-800/50" />
-          <StatCard title="My Balance" value={`${personal.balance >= 0 ? '+' : ''}৳${personal.balance}`} bg={personal.balance >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={personal.balance >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={personal.balance >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
           <StatCard title="My Total Cost" value={`৳${totalMyCost}`} bg={totalMyCost >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={totalMyCost >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={totalMyCost >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
+          <StatCard title="My Balance" value={`${personal.balance >= 0 ? '+' : ''}৳${personal.balance}`} bg={personal.balance >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={personal.balance >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={personal.balance >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
         </div>
       </div>
 
@@ -247,14 +247,14 @@ export default function DashboardIndex() {
             <SummaryItem label="Total Meals" value={`${summary.totalMeals}`} />
             <SummaryItem label="Meal Rate" value={`৳${personal.mealRate}`} />
             <SummaryItem label="Total Deposits" value={`৳${summary.totalDeposits}`} color="text-emerald-600 dark:text-emerald-400" />
-            <SummaryItem label="Mess Meal Cost" value={`৳${summary.messMealCost}`} color="text-rose-600 dark:text-rose-400" />
+            <SummaryItem label="Total Expenses" value={`৳${summary.totalAllCost}`} color="text-indigo-600 dark:text-indigo-400" />
 
             <div className="hidden md:block col-span-4 h-px bg-slate-100 dark:bg-slate-800"></div>
 
+            <SummaryItem label="Total Mess Meal Cost" value={`৳${summary.messMealCost}`} color="text-rose-600 dark:text-rose-400" />
             <SummaryItem label="Total Individual Cost" value={`৳${summary.messIndividualCost}`} color="text-rose-600 dark:text-rose-400" />
-            <SummaryItem label="Total Cost" value={`৳${summary.totalAllCost}`} color="text-indigo-600 dark:text-indigo-400" />
-            <SummaryItem label="Mess Balance" value={`${summary.messBalance >= 0 ? '+' : ''}৳${summary.messBalance}`} color={summary.messBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} />
             <SummaryItem label="Total Shared Cost" value={`৳${summary.totalSharedCost}`} color="text-rose-600 dark:text-rose-400" />
+            <SummaryItem label="Mess Balance" value={`${summary.messBalance >= 0 ? '+' : ''}৳${summary.messBalance}`} color={summary.messBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} />
           </div>
         </div>
       </div>
@@ -349,12 +349,12 @@ export default function DashboardIndex() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {paginatedExpenses.length === 0 ? (
+              {paginatedExpenses?.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">No transactions found.</td>
                 </tr>
               ) : (
-                paginatedExpenses.map((expense) => (
+                paginatedExpenses?.map((expense) => (
                   <tr key={expense._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{new Date(expense.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                     <td className="px-6 py-4 font-medium text-slate-800 dark:text-white">{expense.userName || 'Unknown'}</td>
@@ -426,9 +426,9 @@ function SummaryItem({ label, value, color = "text-slate-800 dark:text-white" }:
 
 function StatCard({ title, value, bg, color, borderColor }: { title: string, value: string, bg: string, color: string, borderColor: string }) {
   return (
-    <div className={`${bg} p-5 rounded-2xl border ${borderColor} shadow-sm transition-all hover:scale-[1.02]`}>
-      <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2 line-clamp-1">{title}</p>
-      <p className={`text-3xl font-bold ${color}`}>{value}</p>
+    <div className={`${bg} p-5 rounded-2xl border ${borderColor} hover:border-${borderColor}-800 shadow-sm transition-all hover:scale-[1.05]`}>
+      <p className="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2 line-clamp-1">{title}</p>
+      <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
   );
 }
