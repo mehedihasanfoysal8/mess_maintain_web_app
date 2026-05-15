@@ -125,7 +125,7 @@ export default function DashboardIndex() {
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.updatedAt || b.date).getTime() - new Date(a.updatedAt || a.date).getTime());
   const totalPages = Math.ceil(sortedExpenses.length / ITEMS_PER_PAGE);
   const paginatedExpenses = sortedExpenses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-  const totalMyCost = personal.individualCost + personal.sharedCostPerPerson + personal.mealRate * personal.myMeals;
+  const totalMyCost = (personal.individualCost + personal.sharedCostPerPerson + personal.mealRate * personal.myMeals).toFixed(2);
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-10">
       {/* Mess Overview Header */}
@@ -156,31 +156,6 @@ export default function DashboardIndex() {
               <p className="text-xs sm:text-sm text-indigo-100 font-medium whitespace-nowrap">
                 Viewing:
               </p>
-
-              {/* <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="bg-transparent font-bold text-white outline-none border-none cursor-pointer focus:ring-0 appearance-none pr-6 text-sm sm:text-base w-full"
-                style={{
-                  backgroundImage:
-                    'url("data:image/svg+xml,%3Csvg xmlns=\\\'http://www.w3.org/2000/svg\\\' fill=\\\'none\\\' viewBox=\\\'0 0 24 24\\\' stroke=\\\'white\\\'%3E%3Cpath stroke-linecap=\\\'round\\\' stroke-linejoin=\\\'round\\\' stroke-width=\\\'2\\\' d=\\\'M19 9l-7 7-7-7\\\'/%3E%3C/svg%3E")',
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "right center",
-                  backgroundSize: "1rem",
-                }}
-              >
-                {yearOptions.map((y) =>
-                  monthsArr.map((m) => (
-                    <option
-                      key={`${m} ${y}`}
-                      value={`${m} ${y}`}
-                      className="bg-white text-slate-900 font-semibold text-sm sm:text-base py-2"
-                    >
-                      {m} {y}
-                    </option>
-                  ))
-                )}
-              </select> */}
               <MonthDropdown n
                 selectedMonth={selectedMonth}
                 setSelectedMonth={setSelectedMonth}
