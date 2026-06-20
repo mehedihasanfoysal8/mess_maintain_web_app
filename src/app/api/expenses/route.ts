@@ -19,7 +19,15 @@ export async function GET(req: NextRequest) {
     const mess = await Mess.findOne({ members: userId });
     if (!mess) return NextResponse.json({ error: 'No mess found' }, { status: 404 });
 
-    const expenses = await Expense.find({ messId: mess._id }).populate('userId', 'name').sort({ updatedAt: -1 });
+    const { searchParams } = new URL(req.url);
+    const month = searchParams.get('month');
+
+    const query: any = { messId: mess._id };
+    if (month) {
+      query.month = month;
+    }
+
+    const expenses = await Expense.find(query).populate('userId', 'name').sort({ updatedAt: -1 });
 
     const members = await User.find({ _id: { $in: mess.members } }).select('name _id');
 
@@ -148,6 +156,38 @@ export async function PUT(req: NextRequest) {
     }
 
     return NextResponse.json({ message: 'Expense updated successfully', expense }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const token = req.cookies.get('auth_token')?.value;
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const userId = payload.userId as string;
+
+    await dbConnect();
+    const mess = await Mess.findOne({ members: userId });
+    if (!mess) return NextResponse.json({ error: 'No mess found' }, { status: 404 });
+
+    if (mess.managerId.toString() !== userId) {
+      return NextResponse.json({ error: 'Only manager can delete expenses' }, { status: 403 });
+    }
+
+    const { id } = await req.json();
+    if (!id) {
+      return NextResponse.json({ error: 'Missing expense ID' }, { status: 400 });
+    }
+
+    const expense = await Expense.findOneAndDelete({ _id: id, messId: mess._id });
+    if (!expense) {
+      return NextResponse.json({ error: 'Expense not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Expense deleted successfully' }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

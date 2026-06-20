@@ -26,7 +26,7 @@ export default function DashboardIndex() {
     try {
       const [dashRes, expRes] = await Promise.all([
         fetch(`/api/dashboard?month=${encodeURIComponent(month)}`),
-        fetch("/api/expenses")
+        fetch(`/api/expenses?month=${encodeURIComponent(month)}`)
       ]);
 
       if (dashRes.ok) {

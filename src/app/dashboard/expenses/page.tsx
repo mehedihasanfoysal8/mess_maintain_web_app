@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Receipt, Search, ChevronLeft, ChevronRight, X, Loader2, Calendar, User, DollarSign, FileText, Edit2 } from "lucide-react";
+import { Plus, Receipt, Search, ChevronLeft, ChevronRight, X, Loader2, Calendar, User, DollarSign, FileText, Edit2, Trash2 } from "lucide-react";
+import MonthDropdown from "@/components/MonthDropdown";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -10,26 +11,26 @@ function cn(...inputs: ClassValue[]) {
 }
 
 // ─── Modal Component ───────────────────────────────────────────
-function ExpenseModal({ 
-  isOpen, 
-  onClose, 
-  members, 
-  onSubmit, 
+function ExpenseModal({
+  isOpen,
+  onClose,
+  members,
+  onSubmit,
   submitting,
   expenseToEdit,
   currentUser
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  members: any[]; 
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  members: any[];
   onSubmit: (data: any, id?: string) => Promise<void>;
   submitting: boolean;
   expenseToEdit: any | null;
   currentUser?: string;
 }) {
-  const getTodayStr = () => { 
-    const d = new Date(); 
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; 
+  const getTodayStr = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
   const [formData, setFormData] = useState({
@@ -120,10 +121,10 @@ function ExpenseModal({
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-2">
                 <User size={16} className="text-slate-400" /> Select Member
               </label>
-              <select 
+              <select
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none appearance-none"
                 value={formData.targetUserId}
-                onChange={e => setFormData({...formData, targetUserId: e.target.value})}
+                onChange={e => setFormData({ ...formData, targetUserId: e.target.value })}
                 required
               >
                 <option value="" disabled>Select a member</option>
@@ -138,10 +139,10 @@ function ExpenseModal({
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-2">
                   <Receipt size={16} className="text-slate-400" /> Type
                 </label>
-                <select 
+                <select
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none appearance-none"
                   value={formData.type}
-                  onChange={e => setFormData({...formData, type: e.target.value})}
+                  onChange={e => setFormData({ ...formData, type: e.target.value })}
                   required
                 >
                   <option value="Deposit">Deposit</option>
@@ -154,12 +155,12 @@ function ExpenseModal({
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-2">
                   <Calendar size={16} className="text-slate-400" /> Date
                 </label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none" 
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
                   value={formData.date}
-                  onChange={e => setFormData({...formData, date: e.target.value})}
+                  onChange={e => setFormData({ ...formData, date: e.target.value })}
                 />
               </div>
             </div>
@@ -169,13 +170,13 @@ function ExpenseModal({
                 <DollarSign size={16} className="text-slate-400" /> Amount (৳)
               </label>
               <div className="relative">
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   required
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold" 
-                  placeholder="0.00" 
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none font-bold"
+                  placeholder="0.00"
                   value={formData.amount}
-                  onChange={e => setFormData({...formData, amount: e.target.value})}
+                  onChange={e => setFormData({ ...formData, amount: e.target.value })}
                 />
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">৳</span>
               </div>
@@ -185,18 +186,18 @@ function ExpenseModal({
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-2">
                 <FileText size={16} className="text-slate-400" /> Description
               </label>
-              <textarea 
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-none h-20" 
+              <textarea
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all outline-none resize-none h-20"
                 placeholder="Brief details about this transaction..."
                 value={formData.description}
-                onChange={e => setFormData({...formData, description: e.target.value})}
+                onChange={e => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
           </div>
 
           <div className="pt-2">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={submitting}
               className="w-full bg-indigo-600 dark:bg-indigo-500 text-white px-4 py-4 rounded-2xl text-base font-bold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-all disabled:opacity-70 flex justify-center items-center shadow-lg shadow-indigo-200 dark:shadow-none active:scale-[0.98]"
             >
@@ -219,7 +220,15 @@ export default function ExpensesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [expenseToEdit, setExpenseToEdit] = useState<any>(null);
-  
+  const [deleting, setDeleting] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState<any>(null);
+
+  // Month filter
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - 1 + i);
+
   // Tabs & Filters
   const [activeTab, setActiveTab] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -228,9 +237,17 @@ export default function ExpensesPage() {
 
   const tabs = ["All", "Deposit", "Bazar/Meal Cost", "Individual Cost", "Shared Cost"];
 
-  const fetchData = async () => {
+  // Initialize month
+  useEffect(() => {
+    const now = new Date();
+    const currentMonthStr = `${monthsArr[now.getMonth()]} ${now.getFullYear()}`;
+    setSelectedMonth(currentMonthStr);
+  }, []);
+
+  const fetchData = async (month: string) => {
+    setLoading(true);
     try {
-      const res = await fetch("/api/expenses");
+      const res = await fetch(`/api/expenses?month=${encodeURIComponent(month)}`);
       if (res.ok) {
         const data = await res.json();
         setExpenses(data.expenses || []);
@@ -246,8 +263,10 @@ export default function ExpensesPage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (selectedMonth) {
+      fetchData(selectedMonth);
+    }
+  }, [selectedMonth]);
 
   const handleSaveExpense = async (formData: any, id?: string) => {
     setSubmitting(true);
@@ -264,12 +283,31 @@ export default function ExpensesPage() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to save expense");
-      
-      await fetchData();
+
+      await fetchData(selectedMonth);
     } catch (err: any) {
       throw err;
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/expenses", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete expense");
+      setExpenseToDelete(null);
+      await fetchData(selectedMonth);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -288,7 +326,7 @@ export default function ExpensesPage() {
     return expenses
       .filter(exp => {
         const matchesTab = activeTab === "All" || exp.type === activeTab;
-        const matchesSearch = 
+        const matchesSearch =
           exp.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (exp.description && exp.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
           exp.amount.toString().includes(searchQuery);
@@ -329,29 +367,43 @@ export default function ExpensesPage() {
             Expense Management
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 font-medium">Manage all financial activities of your mess</p>
+
+          {/* Month Selector */}
+          <div className="flex items-center gap-2 mt-3">
+            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Month:</span>
+            <div className="relative w-56 bg-indigo-600 dark:bg-indigo-700 rounded-xl">
+              <MonthDropdown
+                selectedMonth={selectedMonth}
+                setSelectedMonth={setSelectedMonth}
+                monthsArr={monthsArr}
+                yearOptions={yearOptions}
+                width="w-full"
+              />
+            </div>
+          </div>
         </div>
         {isManager && (
-          <button 
+          <button
             onClick={openAddModal}
             className="group bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3.5 rounded-2xl text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all flex items-center gap-2 shadow-xl shadow-slate-200 dark:shadow-none active:scale-[0.98]"
           >
-            <Plus size={20} className="transition-transform group-hover:rotate-90" /> 
+            <Plus size={20} className="transition-transform group-hover:rotate-90" />
             Add Expenses
           </button>
         )}
       </div>
 
       {/* Tabs and Search Bar */}
-      <div className="flex flex-col lg:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-900 p-2 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="flex overflow-x-auto no-scrollbar gap-1 w-full lg:w-auto p-1">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-5 py-2.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap",
-                activeTab === tab 
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" 
+                "px-5 py-2.5 rounded-lg text-sm font-bold transition-all",
+                activeTab === tab
+                  ? "bg-indigo-600 text-white"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               )}
             >
@@ -361,9 +413,9 @@ export default function ExpensesPage() {
         </div>
         <div className="relative w-full lg:w-80">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search by name, desc..." 
+          <input
+            type="text"
+            placeholder="Search by name, desc..."
             className="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -372,7 +424,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* Table Container */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl shadow-slate-100/50 dark:shadow-none">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl shadow-slate-100/50 dark:shadow-none">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -426,10 +478,10 @@ export default function ExpensesPage() {
                     <td className="px-6 py-6">
                       <p className={cn(
                         "text-lg font-black",
-                        expense.amount < 0 
+                        expense.amount < 0
                           ? 'text-rose-600 dark:text-rose-400'
-                          : expense.type === 'Deposit' 
-                            ? 'text-emerald-600 dark:text-emerald-400' 
+                          : expense.type === 'Deposit'
+                            ? 'text-emerald-600 dark:text-emerald-400'
                             : 'text-slate-900 dark:text-white'
                       )}>
                         {expense.type === 'Deposit' && expense.amount > 0 ? '+' : ''}{expense.amount < 0 ? '-' : ''}৳{Math.abs(expense.amount).toLocaleString()}
@@ -442,13 +494,22 @@ export default function ExpensesPage() {
                     </td>
                     {isManager && (
                       <td className="px-6 py-6 text-right">
-                        <button
-                          onClick={() => openEditModal(expense)}
-                          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-colors"
-                          title="Edit Expense"
-                        >
-                          <Edit2 size={18} />
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => openEditModal(expense)}
+                            className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-colors"
+                            title="Edit Expense"
+                          >
+                            <Edit2 size={18} />
+                          </button>
+                          <button
+                            onClick={() => setExpenseToDelete(expense)}
+                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-xl transition-colors"
+                            title="Delete Expense"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </td>
                     )}
                   </tr>
@@ -465,7 +526,7 @@ export default function ExpensesPage() {
               Showing <span className="text-slate-900 dark:text-white font-bold">{filteredExpenses.length === 0 ? 0 : Math.min(filteredExpenses.length, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(filteredExpenses.length, currentPage * itemsPerPage)}</span> of <span className="text-slate-900 dark:text-white font-bold">{filteredExpenses.length}</span> transactions
             </p>
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="flex items-center justify-center gap-2 min-w-[100px] px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-black text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:bg-slate-100 dark:disabled:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-md active:scale-95"
@@ -479,8 +540,8 @@ export default function ExpensesPage() {
                     onClick={() => setCurrentPage(page)}
                     className={cn(
                       "w-11 h-11 rounded-xl text-sm font-black transition-all shadow-md active:scale-95",
-                      currentPage === page 
-                        ? "bg-indigo-600 text-white shadow-indigo-300 dark:shadow-none" 
+                      currentPage === page
+                        ? "bg-indigo-600 text-white shadow-indigo-300 dark:shadow-none"
                         : "text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
                     )}
                   >
@@ -488,7 +549,7 @@ export default function ExpensesPage() {
                   </button>
                 ))}
               </div>
-              <button 
+              <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages || totalPages === 0}
                 className="flex items-center justify-center gap-2 min-w-[100px] px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-black text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:bg-slate-100 dark:disabled:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-md active:scale-95"
@@ -501,7 +562,7 @@ export default function ExpensesPage() {
       </div>
 
       {/* Add/Edit Expense Modal */}
-      <ExpenseModal 
+      <ExpenseModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         members={members}
@@ -510,6 +571,47 @@ export default function ExpensesPage() {
         expenseToEdit={expenseToEdit}
         currentUser={currentUser}
       />
+
+      {/* Delete Confirmation Modal */}
+      {expenseToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-rose-50/50 dark:bg-rose-900/10">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Trash2 className="text-rose-600 dark:text-rose-400" size={24} /> Delete Expense
+              </h3>
+              <button onClick={() => setExpenseToDelete(null)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+                <X size={20} className="text-slate-500" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-slate-600 dark:text-slate-400">
+                Are you sure you want to delete this transaction?
+              </p>
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 space-y-1">
+                <p className="text-sm font-bold text-slate-800 dark:text-white">{expenseToDelete.userName}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{expenseToDelete.type} — ৳{Math.abs(expenseToDelete.amount).toLocaleString()}</p>
+                <p className="text-xs text-slate-400">{new Date(expenseToDelete.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setExpenseToDelete(null)}
+                  className="flex-1 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteExpense(expenseToDelete._id)}
+                  disabled={deleting}
+                  className="flex-1 bg-rose-600 dark:bg-rose-500 text-white px-4 py-3 rounded-2xl text-sm font-bold hover:bg-rose-700 dark:hover:bg-rose-600 transition-all disabled:opacity-70 flex justify-center items-center shadow-lg shadow-rose-200 dark:shadow-none active:scale-[0.98]"
+                >
+                  {deleting ? <Loader2 className="animate-spin" size={20} /> : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
