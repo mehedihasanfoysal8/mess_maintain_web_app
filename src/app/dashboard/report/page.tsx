@@ -331,13 +331,22 @@ export default function ReportPage() {
                 <tbody className="text-slate-600 dark:text-slate-400">
                   {reportData.memberSummaries.map((m: any, i: number) => (
                     <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <td className="p-3 border border-slate-200 dark:border-slate-700 font-medium text-slate-800 dark:text-white">{m.name}</td>
+                      <td className="p-3 border border-slate-200 dark:border-slate-700 font-medium text-slate-800 dark:text-white">
+                        <div className="flex items-center justify-center gap-2">
+                          {m.name}
+                          {m.balance < 0 && (
+                            <span className="inline-flex items-center bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-rose-200 dark:border-rose-800/50">
+                              Low Balance ⚠️
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="p-3 border border-slate-200 dark:border-slate-700">{m.meals}</td>
                       <td className="p-3 border border-slate-200 dark:border-slate-700">{m.deposit.toFixed(2)}</td>
                       <td className="p-3 border border-slate-200 dark:border-slate-700">{m.mealCost.toFixed(2)}</td>
                       <td className="p-3 border border-slate-200 dark:border-slate-700">{m.individualCost.toFixed(2)}</td>
                       <td className="p-3 border border-slate-200 dark:border-slate-700">{m.sharedCost.toFixed(2)}</td>
-                      <td className={`p-3 border border-slate-200 dark:border-slate-700 font-bold ${m.balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{m.balance.toFixed(2)}</td>
+                      <td className={`p-3 border border-slate-200 dark:border-slate-700 font-bold ${m.balance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>{m.balance.toFixed(2)}</td>
                     </tr>
                   ))}
                   <tr className="bg-slate-50 dark:bg-slate-800 font-bold text-slate-800 dark:text-white">

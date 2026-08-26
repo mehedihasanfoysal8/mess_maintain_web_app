@@ -6,6 +6,8 @@ export interface IMess extends Document {
   passwordHash: string; // "Mess Password (for other to join)"
   managerId: mongoose.Types.ObjectId;
   members: mongoose.Types.ObjectId[];
+  cookName?: string;
+  cookPhone?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +19,8 @@ const MessSchema: Schema = new Schema(
     passwordHash: { type: String, required: true },
     managerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    cookName: { type: String, default: "" },
+    cookPhone: { type: String, default: "" },
   },
   { timestamps: true }
 );

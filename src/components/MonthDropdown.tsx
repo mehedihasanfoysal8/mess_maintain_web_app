@@ -11,6 +11,7 @@ export default function MonthDropdown({
 }: any) {
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // ✅ Outside click close
     useEffect(() => {
@@ -28,6 +29,16 @@ export default function MonthDropdown({
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    // ✅ Scroll to selected month when opened
+    useEffect(() => {
+        if (open && scrollContainerRef.current) {
+            const selectedElement = scrollContainerRef.current.querySelector('[data-selected="true"]');
+            if (selectedElement) {
+                selectedElement.scrollIntoView({ block: "center" });
+            }
+        }
+    }, [open]);
 
 
     return (
@@ -50,6 +61,7 @@ export default function MonthDropdown({
             {/* Dropdown */}
             {open && (
                 <div
+                    ref={scrollContainerRef}
                     className="
           absolute left-0 mt-2 w-full
           bg-white dark:bg-slate-900
@@ -62,24 +74,30 @@ export default function MonthDropdown({
         "
                 >
                     {yearOptions.map((y: string) =>
-                        monthsArr.map((m: string) => (
-                            <div
-                                key={`${m} ${y}`}
-                                onClick={() => {
-                                    setSelectedMonth(`${m} ${y}`);
-                                    setOpen(false);
-                                }}
-                                className="
+                        monthsArr.map((m: string) => {
+                            const isSelected = selectedMonth === `${m} ${y}`;
+                            return (
+                                <div
+                                    key={`${m} ${y}`}
+                                    data-selected={isSelected}
+                                    onClick={() => {
+                                        setSelectedMonth(`${m} ${y}`);
+                                        setOpen(false);
+                                    }}
+                                    className={`
                   px-6 py-3
                   cursor-pointer
-                  text-slate-800 dark:text-slate-200
-                  hover:bg-indigo-100 dark:hover:bg-indigo-500/20
                   transition-colors duration-200
-                "
-                            >
-                                {m} {y}
-                            </div>
-                        ))
+                  ${isSelected
+                                            ? "bg-indigo-600 text-white font-bold"
+                                            : "text-slate-800 dark:text-slate-200 hover:bg-indigo-100 dark:hover:bg-indigo-500/20"
+                                        }
+                `}
+                                >
+                                    {m} {y}
+                                </div>
+                            );
+                        })
                     )}
                 </div>
             )}
