@@ -28,11 +28,15 @@ export default function DashboardLayout({
   const [user, setUser] = useState<any>(null);
   const [hasMess, setHasMess] = useState<boolean | null>(null);
   const [isManager, setIsManager] = useState(false);
+  const [memberType, setMemberType] = useState<string>('Permanent');
+  const [isActive, setIsActive] = useState<boolean>(true);
+  const [endDate, setEndDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // ✅ Separate states (NO BUG)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -57,9 +61,15 @@ export default function DashboardLayout({
           const dashData = await dashRes.json();
           setHasMess(!!dashData.mess);
           setIsManager(dashData.mess?.role === 'Manager');
+          setMemberType(dashData.mess?.memberType || 'Permanent');
+          setIsActive(dashData.mess?.isActive ?? true);
+          setEndDate(dashData.mess?.endDate || null);
         } else {
           setHasMess(false);
           setIsManager(false);
+          setMemberType('Permanent');
+          setIsActive(true);
+          setEndDate(null);
         }
       } catch (err) {
         console.error("Failed to fetch layout data", err);
@@ -107,7 +117,7 @@ export default function DashboardLayout({
   const currentItem = allMenuItems.find((i) => i.href === pathname);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex text-slate-900 dark:text-slate-100">
+    <div className="h-screen bg-slate-50 dark:bg-slate-950 flex text-slate-900 dark:text-slate-100">
 
       {/* Overlay (mobile only) */}
       {isMobileSidebarOpen && (
@@ -119,7 +129,7 @@ export default function DashboardLayout({
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30
+        className={`fixed inset-y-0 left-0 w-56 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30
         transform transition-all duration-300 ease-in-out will-change-transform flex flex-col
         ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
         ${isDesktopSidebarOpen ? "md:translate-x-0" : "md:-translate-x-full"}`}
@@ -184,35 +194,15 @@ export default function DashboardLayout({
             </div>
           )}
         </div>
-
-        {/* Profile */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-3 px-4 py-3 mb-2">
-            <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center font-bold">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-slate-500">{user?.email}</p>
-            </div>
-          </div>
-
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-red-600 hover:bg-red-50"
-          >
-            <LogOut size={20} /> Logout
-          </button>
-        </div>
       </aside>
 
       {/* Main */}
       <main
         className={`flex-1 flex flex-col min-w-0 overflow-hidden
         transition-all duration-300 ease-in-out
-        ${isDesktopSidebarOpen ? "md:ml-64" : "md:ml-0"}`}
+        ${isDesktopSidebarOpen ? "md:ml-56" : "md:ml-0"}`}
       >
-        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 px-4 md:px-8 py-4 flex items-center justify-between">
+        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 px-4 md:px-6 py-[11px] flex items-center justify-between">
 
           <div className="flex items-center">
 
@@ -241,6 +231,66 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
+
+            {user && (
+              <>
+                {/* Transparent overlay to close dropdown on outside click */}
+                {isProfileOpen && (
+                  <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)}></div>
+                )}
+
+                <div className="relative z-50">
+                  <button
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className="flex items-center gap-2 focus:outline-none hover:bg-slate-100 dark:hover:bg-slate-800 p-1.5 rounded-full md:rounded-xl transition-colors"
+                  >
+                    <div className="h-9 w-9 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center font-bold text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="hidden md:block text-sm font-medium text-slate-700 dark:text-slate-300 pr-2">
+                      {user?.name}
+                    </span>
+                  </button>
+
+                  {isProfileOpen && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transform origin-top-right transition-all">
+                      <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+                        <p className="font-bold text-slate-800 dark:text-white truncate">{user.name}</p>
+                        <p className="text-xs text-slate-500 truncate mb-3">{user.email}</p>
+
+                        {hasMess && (
+                          <div className="space-y-2 mt-2 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-slate-500 dark:text-slate-400">Role:</span>
+                              <span className={`font-semibold ${isManager ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'}`}>{isManager ? 'Manager' : 'Member'}</span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-slate-500 dark:text-slate-400">Type:</span>
+                              <span className={`font-semibold ${memberType === 'Guest' ? 'text-amber-600 dark:text-amber-400' : 'text-slate-700 dark:text-slate-300'}`}>{memberType}</span>
+                            </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-slate-500 dark:text-slate-400">Status:</span>
+                              {isActive ? (
+                                <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active</span>
+                              ) : (
+                                <span className="font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1" title={endDate ? `Removed on ${endDate}` : 'Removed'}><span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Removed</span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3 transition-colors text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 text-sm font-medium text-left"
+                      >
+                        <LogOut size={18} /> Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </header>
 

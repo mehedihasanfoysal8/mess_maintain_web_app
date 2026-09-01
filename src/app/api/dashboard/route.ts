@@ -180,7 +180,10 @@ export async function GET(req: NextRequest) {
         name: mess.name,
         activeMonth,
         role: mess.managerId.toString() === userId ? 'Manager' : 'Member',
-        membersCount: activeMembersCount
+        membersCount: activeMembersCount,
+        memberType: mySettings?.role || 'Permanent',
+        isActive: amIActive,
+        endDate: mySettings?.endDate || null,
       },
       personal: {
         myDeposit,

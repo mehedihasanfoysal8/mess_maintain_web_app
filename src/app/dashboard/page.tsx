@@ -127,7 +127,7 @@ export default function DashboardIndex() {
   const paginatedExpenses = sortedExpenses.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
   const totalMyCost = (personal.individualCost + personal.sharedCostPerPerson + personal.mealRate * personal.myMeals).toFixed(2);
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-10">
+    <div className="max-w-7xl mx-auto space-y-8 pb-10 overflow-x-hidden">
       {/* Mess Overview Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-700 dark:to-violet-800 rounded-[1.5rem] p-5 sm:p-6 md:p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center shadow-2xl relative overflow-visible">
 
