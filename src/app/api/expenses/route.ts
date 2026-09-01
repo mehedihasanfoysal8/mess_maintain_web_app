@@ -4,6 +4,7 @@ import dbConnect from '@/lib/db';
 import Mess from '@/models/Mess';
 import Expense from '@/models/Expense';
 import User from '@/models/User';
+import { isUserActiveInMonth } from '@/lib/messUtils';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'supersecretjwtkey_for_mess_maintain_app');
 
@@ -29,20 +30,46 @@ export async function GET(req: NextRequest) {
 
     const expenses = await Expense.find(query).populate('userId', 'name').sort({ updatedAt: -1 });
 
-    const members = await User.find({ _id: { $in: mess.members } }).select('name _id');
+    let targetMonthStr = month;
+    if (!targetMonthStr) {
+      const now = new Date();
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      targetMonthStr = `${months[now.getMonth()]} ${now.getFullYear()}`;
+    }
+
+    const activeMemberIds = mess.members.filter((uId: any) => {
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === uId.toString());
+      return isUserActiveInMonth(settings, targetMonthStr as string);
+    });
+
+    const members = await User.find({ _id: { $in: activeMemberIds } }).select('name _id');
+
+    const membersWithRole = members.map(m => {
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === m._id.toString());
+      return {
+        _id: m._id,
+        name: m.name,
+        role: settings?.role || 'Permanent'
+      };
+    });
 
     return NextResponse.json({ 
-      expenses: expenses.map(e => ({
-        _id: e._id,
-        userName: (e.userId as any)?.name || 'Unknown',
-        userId: (e.userId as any)?._id,
-        type: e.type,
-        amount: e.amount,
-        date: e.date,
-        description: e.description,
-        updatedAt: e.updatedAt || e.createdAt
-      })),
-      members: members,
+      expenses: expenses.map(e => {
+        const uId = (e.userId as any)?._id?.toString();
+        const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === uId);
+        return {
+          _id: e._id,
+          userName: (e.userId as any)?.name || 'Unknown',
+          userId: uId,
+          role: settings?.role || 'Permanent',
+          type: e.type,
+          amount: e.amount,
+          date: e.date,
+          description: e.description,
+          updatedAt: e.updatedAt || e.createdAt
+        };
+      }),
+      members: membersWithRole,
       isManager: mess.managerId.toString() === userId,
       currentUser: userId
     }, { status: 200 });

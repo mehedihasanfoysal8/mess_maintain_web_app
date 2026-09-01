@@ -5,6 +5,7 @@ import Mess from '@/models/Mess';
 import Meal from '@/models/Meal';
 import Expense from '@/models/Expense';
 import mongoose from 'mongoose';
+import { isUserActiveInMonth, calculatePreviousBalances } from '@/lib/messUtils';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'supersecretjwtkey_for_mess_maintain_app');
 
@@ -58,6 +59,13 @@ export async function GET(req: NextRequest) {
     }
 
     // =============================================
+    // CARRY FORWARD BALANCES
+    // =============================================
+    const previousBalances = await calculatePreviousBalances(mess._id.toString(), activeMonth, mess.initialMonth);
+    const myPreviousBalance = previousBalances[userId] || 0;
+    const totalPreviousBalances = Object.values(previousBalances).reduce((a, b) => a + b, 0);
+
+    // =============================================
     // PERSONAL STATS - filtered by userId AND month
     // =============================================
     const userDeposits = await Expense.aggregate([
@@ -71,7 +79,7 @@ export async function GET(req: NextRequest) {
       },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
-    const myDeposit = userDeposits.length > 0 ? userDeposits[0].total : 0;
+    const myDeposit = (userDeposits.length > 0 ? userDeposits[0].total : 0) + myPreviousBalance;
 
     const mealSumExpression = {
       $sum: {
@@ -132,8 +140,18 @@ export async function GET(req: NextRequest) {
     });
 
     const mealRate = totalMeals > 0 ? (messMealCost / totalMeals) : 0;
-    const totalMembers = mess.members.length;
-    const sharedCostPerPerson = totalMembers > 0 ? (totalSharedCost / totalMembers) : 0;
+    
+    // Count active members for shared cost
+    const activeMembersCount = mess.members.filter((uId: any) => {
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === uId.toString());
+      return isUserActiveInMonth(settings, activeMonth);
+    }).length;
+    
+    const sharedCostPerPerson = activeMembersCount > 0 ? (totalSharedCost / activeMembersCount) : 0;
+    totalDeposits += totalPreviousBalances; // Add all previous balances to mess deposit
+
+    const mySettings = mess.memberSettings?.find((s: any) => s.userId.toString() === userId);
+    const amIActive = isUserActiveInMonth(mySettings, activeMonth);
 
     // My personal individual cost for this month
     const myIndivCostAgg = await Expense.aggregate([
@@ -150,7 +168,7 @@ export async function GET(req: NextRequest) {
     const myIndividualCost = myIndivCostAgg.length > 0 ? myIndivCostAgg[0].total : 0;
 
     const myMealCost = myMeals * mealRate;
-    const myTotalCost = myMealCost + sharedCostPerPerson + myIndividualCost;
+    const myTotalCost = myMealCost + (amIActive ? sharedCostPerPerson : 0) + myIndividualCost;
     const myBalance = myDeposit - myTotalCost;
 
     const totalAllCost = messMealCost + totalSharedCost + messIndividualCost;
@@ -162,7 +180,7 @@ export async function GET(req: NextRequest) {
         name: mess.name,
         activeMonth,
         role: mess.managerId.toString() === userId ? 'Manager' : 'Member',
-        membersCount: totalMembers
+        membersCount: activeMembersCount
       },
       personal: {
         myDeposit,
@@ -180,7 +198,7 @@ export async function GET(req: NextRequest) {
         messIndividualCost,
         totalAllCost,
         messBalance: Number(messBalance.toFixed(2)),
-        totalMembers
+        totalMembers: activeMembersCount
       }
     }, { status: 200 });
 

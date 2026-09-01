@@ -129,7 +129,7 @@ function ExpenseModal({
               >
                 <option value="" disabled>Select a member</option>
                 {members.map(m => (
-                  <option key={m._id} value={m._id}>{m.name}</option>
+                  <option key={m._id} value={m._id}>{m.name} {m.role == 'Guest' && '(Guest)'}</option>
                 ))}
               </select>
             </div>
@@ -457,7 +457,12 @@ export default function ExpensesPage() {
                           {expense.userName.charAt(0)}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-800 dark:text-white">{expense.userName}</p>
+                          <p className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            {expense.userName}
+                            {expense.role === 'Guest' && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">GUEST</span>
+                            )}
+                          </p>
                           <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                             <Calendar size={12} /> {new Date(expense.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </p>

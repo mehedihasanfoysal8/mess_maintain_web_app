@@ -6,6 +6,7 @@ import Meal from '@/models/Meal';
 import Expense from '@/models/Expense';
 import User from '@/models/User';
 import mongoose from 'mongoose';
+import { isUserActiveInMonth, calculatePreviousBalances } from '@/lib/messUtils';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'supersecretjwtkey_for_mess_maintain_app');
 
@@ -47,8 +48,15 @@ export async function GET(req: NextRequest) {
       console.error(e);
     }
 
-    // Fetch members
-    const members = await User.find({ _id: { $in: mess.members } }).select('name _id').lean();
+    // Fetch members (Only active ones for this month)
+    const activeMemberIds = mess.members.filter((uId: any) => {
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === uId.toString());
+      return isUserActiveInMonth(settings, activeMonth);
+    });
+    const members = await User.find({ _id: { $in: activeMemberIds } }).select('name _id').lean();
+
+    // Get carry-forward balances
+    const previousBalances = await calculatePreviousBalances(mess._id.toString(), activeMonth, mess.initialMonth);
 
     // Fetch all meals for this month
     const meals = await Meal.find({
@@ -111,16 +119,31 @@ export async function GET(req: NextRequest) {
     const memberStats: Record<string, any> = {};
 
     members.forEach(m => {
-      memberStats[m._id.toString()] = {
+      const uId = m._id.toString();
+      const prevBal = previousBalances[uId] || 0;
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === uId.toString());
+      
+      memberStats[uId] = {
         name: m.name,
+        role: settings?.role || 'Permanent',
         meals: 0,
-        deposit: 0,
+        deposit: prevBal, // Start with previous balance
         individualCost: 0,
         sharedCost: 0,
         mealCost: 0,
         balance: 0,
-        dailyMeals: {} // key: day number, value: count
+        dailyMeals: {}
       };
+
+      if (prevBal !== 0) {
+        totalDeposits += prevBal;
+        expensesByType['Deposit'].push({
+          name: m.name,
+          date: activeMonth,
+          amount: prevBal,
+          remarks: 'Previous Month Balance (Auto)'
+        });
+      }
     });
 
     meals.forEach(m => {

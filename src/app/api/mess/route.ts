@@ -34,6 +34,11 @@ export async function POST(req: NextRequest) {
       passwordHash,
       managerId: userId,
       members: [userId], // Manager is automatically a member
+      memberSettings: [{
+        userId,
+        role: 'Permanent',
+        activePeriods: [{ startMonth: initialMonth }]
+      }]
     });
 
     return NextResponse.json({ message: 'Mess created successfully', mess: newMess }, { status: 201 });

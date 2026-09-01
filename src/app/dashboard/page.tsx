@@ -217,16 +217,16 @@ export default function DashboardIndex() {
 
           {/* First Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            <StatCard title="My Deposit" value={`৳${personal.myDeposit}`} bg="bg-blue-50 dark:bg-blue-900/20" color="text-blue-700 dark:text-blue-400" borderColor="border-blue-100 dark:border-blue-800/50" />
+            <StatCard title="My Deposit" value={`৳${personal.myDeposit.toFixed(2)}`} bg="bg-blue-50 dark:bg-blue-900/20" color="text-blue-700 dark:text-blue-400" borderColor="border-blue-100 dark:border-blue-800/50" />
             <StatCard title="My Meals" value={`${personal.myMeals}`} bg="bg-emerald-50 dark:bg-emerald-900/20" color="text-emerald-700 dark:text-emerald-400" borderColor="border-emerald-100 dark:border-emerald-800/50" />
             <StatCard title="My Total Cost" value={`৳${totalMyCost}`} bg={totalMyCost >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={totalMyCost >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={totalMyCost >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
-            <StatCard title="My Balance" value={`${personal.balance >= 0 ? '+' : ''}৳${personal.balance}`} bg={personal.balance >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={personal.balance >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={personal.balance >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
+            <StatCard title="My Balance" value={`${personal.balance >= 0 ? '+' : ''}৳${personal.balance.toFixed(2)}`} bg={personal.balance >= 0 ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-rose-50 dark:bg-rose-900/20"} color={personal.balance >= 0 ? "text-indigo-700 dark:text-indigo-400" : "text-rose-700 dark:text-rose-400"} borderColor={personal.balance >= 0 ? "border-indigo-100 dark:border-indigo-800/50" : "border-rose-100 dark:border-rose-800/50"} />
           </div>
 
           {/* Second Row */}
           <div className="grid grid-cols-2 gap-4 md:gap-6">
-            <StatCard title="My Individual Cost" value={`৳${personal.individualCost}`} bg="bg-amber-50 dark:bg-amber-900/20" color="text-amber-700 dark:text-amber-400" borderColor="border-amber-100 dark:border-amber-800/50" />
-            <StatCard title="My Shared Cost" value={`৳${personal.sharedCostPerPerson}`} bg="bg-yellow-50 dark:bg-yellow-900/20" color="text-yellow-700 dark:text-yellow-400" borderColor="border-yellow-100 dark:border-yellow-800/50" />
+            <StatCard title="My Individual Cost" value={`৳${personal.individualCost.toFixed(2)}`} bg="bg-amber-50 dark:bg-amber-900/20" color="text-amber-700 dark:text-amber-400" borderColor="border-amber-100 dark:border-amber-800/50" />
+            <StatCard title="My Shared Cost" value={`৳${personal.sharedCostPerPerson.toFixed(2)}`} bg="bg-yellow-50 dark:bg-yellow-900/20" color="text-yellow-700 dark:text-yellow-400" borderColor="border-yellow-100 dark:border-yellow-800/50" />
 
           </div>
 
@@ -240,16 +240,16 @@ export default function DashboardIndex() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
             <SummaryItem label="Total Meals" value={`${summary.totalMeals}`} />
-            <SummaryItem label="Meal Rate" value={`৳${personal.mealRate}`} />
-            <SummaryItem label="Total Deposits" value={`৳${summary.totalDeposits}`} color="text-emerald-600 dark:text-emerald-400" />
-            <SummaryItem label="Total Expenses" value={`৳${summary.totalAllCost}`} color="text-indigo-600 dark:text-indigo-400" />
+            <SummaryItem label="Meal Rate" value={`৳${personal.mealRate.toFixed(2)}`} />
+            <SummaryItem label="Total Deposits" value={`৳${summary.totalDeposits.toFixed(2)}`} color="text-emerald-600 dark:text-emerald-400" />
+            <SummaryItem label="Total Expenses" value={`৳${summary.totalAllCost.toFixed(2)}`} color="text-indigo-600 dark:text-indigo-400" />
 
             <div className="hidden md:block col-span-4 h-px bg-slate-100 dark:bg-slate-800"></div>
 
-            <SummaryItem label="Total Mess Meal Cost" value={`৳${summary.messMealCost}`} color="text-rose-600 dark:text-rose-400" />
-            <SummaryItem label="Total Individual Cost" value={`৳${summary.messIndividualCost}`} color="text-rose-600 dark:text-rose-400" />
-            <SummaryItem label="Total Shared Cost" value={`৳${summary.totalSharedCost}`} color="text-rose-600 dark:text-rose-400" />
-            <SummaryItem label="Mess Balance" value={`${summary.messBalance >= 0 ? '+' : ''}৳${summary.messBalance}`} color={summary.messBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} />
+            <SummaryItem label="Total Mess Meal Cost" value={`৳${summary.messMealCost.toFixed(2)}`} color="text-rose-600 dark:text-rose-400" />
+            <SummaryItem label="Total Individual Cost" value={`৳${summary.messIndividualCost.toFixed(2)}`} color="text-rose-600 dark:text-rose-400" />
+            <SummaryItem label="Total Shared Cost" value={`৳${summary.totalSharedCost.toFixed(2)}`} color="text-rose-600 dark:text-rose-400" />
+            <SummaryItem label="Mess Balance" value={`${summary.messBalance >= 0 ? '+' : ''}৳${summary.messBalance.toFixed(2)}`} color={summary.messBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"} />
           </div>
         </div>
       </div>

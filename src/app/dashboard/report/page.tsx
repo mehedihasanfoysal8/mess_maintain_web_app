@@ -332,10 +332,15 @@ export default function ReportPage() {
                   {reportData.memberSummaries.map((m: any, i: number) => (
                     <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                       <td className="p-3 border border-slate-200 dark:border-slate-700 font-medium text-slate-800 dark:text-white">
-                        <div className="flex items-center justify-center gap-2">
-                          {m.name}
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <div className="flex items-center gap-2">
+                            {m.name}
+                            {m.role === 'Guest' && (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">GUEST</span>
+                            )}
+                          </div>
                           {m.balance < 0 && (
-                            <span className="inline-flex items-center bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-rose-200 dark:border-rose-800/50">
+                            <span className="inline-flex items-center bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-rose-200 dark:border-rose-800/50 mt-0.5">
                               Low Balance ⚠️
                             </span>
                           )}
@@ -380,7 +385,14 @@ export default function ReportPage() {
                 <tbody className="text-slate-600 dark:text-slate-400">
                   {reportData.memberSummaries.map((m: any, i: number) => (
                     <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <td className="p-2 border border-slate-200 dark:border-slate-700 font-medium text-slate-800 dark:text-white sticky left-0 bg-white dark:bg-slate-900">{m.name}</td>
+                      <td className="p-2 border border-slate-200 dark:border-slate-700 font-medium text-slate-800 dark:text-white sticky left-0 bg-white dark:bg-slate-900">
+                        <div className="flex flex-col items-center sm:flex-row sm:justify-start gap-1">
+                          <span>{m.name}</span>
+                          {m.role === 'Guest' && (
+                            <span className="px-1 rounded text-[9px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">GUEST</span>
+                          )}
+                        </div>
+                      </td>
                       {Array.from({ length: 31 }, (_, i) => (
                         <td key={i} className="p-2 border border-slate-200 dark:border-slate-700">
                           {m.dailyMeals[i + 1] || '0'}

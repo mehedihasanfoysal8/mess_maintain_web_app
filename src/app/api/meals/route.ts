@@ -5,6 +5,7 @@ import Mess from '@/models/Mess';
 import Meal from '@/models/Meal';
 import User from '@/models/User';
 import mongoose from 'mongoose';
+import { isUserActiveInMonth } from '@/lib/messUtils';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'supersecretjwtkey_for_mess_maintain_app');
 
@@ -24,7 +25,32 @@ export async function GET(req: NextRequest) {
     const mess = await Mess.findOne({ members: userId });
     if (!mess) return NextResponse.json({ error: 'No mess found' }, { status: 404 });
 
-    const members = await User.find({ _id: { $in: mess.members } }).select('name _id');
+    let targetMonthStr = '';
+    if (date) {
+      const [y, m] = date.split('-');
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      targetMonthStr = `${months[parseInt(m) - 1]} ${y}`;
+    } else {
+      const now = new Date();
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      targetMonthStr = `${months[now.getMonth()]} ${now.getFullYear()}`;
+    }
+
+    const activeMemberIds = mess.members.filter((uId: any) => {
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === uId.toString());
+      return isUserActiveInMonth(settings, targetMonthStr);
+    });
+
+    const members = await User.find({ _id: { $in: activeMemberIds } }).select('name _id');
+
+    const membersWithRole = members.map(m => {
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === m._id.toString());
+      return {
+        _id: m._id,
+        name: m.name,
+        role: settings?.role || 'Permanent'
+      };
+    });
 
     let meals: any[] = [];
     if (date) {
@@ -32,7 +58,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-      members,
+      members: membersWithRole,
       meals: meals.map(m => ({
         userId: m.userId.toString(),
         breakfast: m.breakfast || 0,

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Utensils, CalendarDays, Loader2, Save, Minus, Plus, ChevronLeft, ChevronRight, RefreshCw, Trash2 } from "lucide-react";
 
 // ─── Types ───────────────────────────────
-interface Member { _id: string; name: string; }
+interface Member { _id: string; name: string; role?: string; }
 interface MealEntry { breakfast: number; lunch: number; dinner: number; }
 type DailyState = Record<string, MealEntry>;
 type SavedSet = Set<string>; // userIds that already have a DB record for the date
@@ -208,7 +208,12 @@ function DailyEntry({ today }: { today: string }) {
                             {member.name.charAt(0)}
                           </div>
                           <div>
-                            <div>{member.name}</div>
+                            <div className="flex items-center gap-2">
+                              {member.name}
+                              {member.role === 'Guest' && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">GUEST</span>
+                              )}
+                            </div>
                             {savedUsers.has(member._id) && (
                               <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">✓ Saved</span>
                             )}
@@ -264,7 +269,12 @@ function DailyEntry({ today }: { today: string }) {
                         {member.name.charAt(0)}
                       </div>
                       <div>
-                        <span className="font-semibold text-slate-800 dark:text-white text-sm">{member.name}</span>
+                        <span className="font-semibold text-slate-800 dark:text-white text-sm flex items-center gap-2">
+                          {member.name}
+                          {member.role === 'Guest' && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">GUEST</span>
+                          )}
+                        </span>
                         {savedUsers.has(member._id) && (
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">✓ Saved</span>
@@ -382,8 +392,11 @@ function MonthlySummary() {
                   const bg = idx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-800/40";
                   return (
                     <tr key={member._id} className={`${bg} hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors`}>
-                      <td className={`px-3 sm:px-4 py-3 font-semibold text-slate-800 dark:text-white border-r border-slate-200 dark:border-slate-700 sticky left-0 z-10 text-xs sm:text-sm ${bg}`}>
+                      <td className={`px-3 sm:px-4 py-3 font-semibold text-slate-800 dark:text-white border-r border-slate-200 dark:border-slate-700 sticky left-0 z-10 text-xs sm:text-sm flex items-center gap-1.5 ${bg}`}>
                         {member.name}
+                        {member.role === 'Guest' && (
+                          <span className="px-1 rounded text-[9px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">GUEST</span>
+                        )}
                       </td>
                       {Array.from({ length: data.daysInMonth }, (_, i) => i + 1).map(day => {
                         const val = mg[String(day)] || mg[day] || 0;

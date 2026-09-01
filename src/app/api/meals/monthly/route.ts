@@ -5,6 +5,7 @@ import Mess from '@/models/Mess';
 import Meal from '@/models/Meal';
 import User from '@/models/User';
 import mongoose from 'mongoose';
+import { isUserActiveInMonth } from '@/lib/messUtils';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'supersecretjwtkey_for_mess_maintain_app');
 
@@ -32,7 +33,15 @@ export async function GET(req: NextRequest) {
     const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
     const endDate = `${year}-${String(month).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
 
-    const members = await User.find({ _id: { $in: mess.members } }).select('name _id');
+    const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const targetMonthStr = `${monthsArr[month - 1]} ${year}`;
+
+    const activeMemberIds = mess.members.filter((uId: any) => {
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === uId.toString());
+      return isUserActiveInMonth(settings, targetMonthStr);
+    });
+
+    const members = await User.find({ _id: { $in: activeMemberIds } }).select('name _id');
 
     // Get all meals for this month
     const meals = await Meal.find({
@@ -65,8 +74,17 @@ export async function GET(req: NextRequest) {
 
     const overallTotal = Object.values(dailyTotals).reduce((a, b) => a + b, 0);
 
+    const membersWithRole = members.map((m: any) => {
+      const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === m._id.toString());
+      return {
+        _id: m._id.toString(),
+        name: m.name,
+        role: settings?.role || 'Permanent'
+      };
+    });
+
     return NextResponse.json({
-      members: members.map((m: any) => ({ _id: m._id.toString(), name: m.name })),
+      members: membersWithRole,
       grid,        // { userId: { day: totalMeals } }
       dailyTotals, // { day: totalMeals }
       daysInMonth,

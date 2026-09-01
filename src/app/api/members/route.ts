@@ -21,13 +21,31 @@ export async function GET(req: NextRequest) {
     const members = await User.find({ _id: { $in: mess.members } }).select('name email phone _id');
 
     return NextResponse.json({ 
-      members: members.map(m => ({
-        _id: m._id,
-        name: m.name,
-        email: m.email,
-        phone: m.phone || 'N/A',
-        isManager: mess.managerId.toString() === m._id.toString()
-      })),
+      members: members.map(m => {
+        const uId = m._id.toString();
+        const settings = mess.memberSettings?.find((s: any) => s.userId.toString() === uId);
+        
+        let isActive = true;
+        let leftMonth = null;
+        if (settings && settings.activePeriods && settings.activePeriods.length > 0) {
+           const lastPeriod = settings.activePeriods[settings.activePeriods.length - 1];
+           if (lastPeriod.endMonth) {
+             isActive = false;
+             leftMonth = lastPeriod.endMonth;
+           }
+        }
+
+        return {
+          _id: m._id,
+          name: m.name,
+          email: m.email,
+          phone: m.phone || 'N/A',
+          isManager: mess.managerId.toString() === uId,
+          role: settings?.role || 'Permanent',
+          isActive,
+          leftMonth
+        };
+      }),
       isCurrentUserManager: mess.managerId.toString() === userId
     }, { status: 200 });
 

@@ -34,6 +34,19 @@ export async function POST(req: NextRequest) {
       // Add member to mess
       if (!mess.members.includes(request.userId)) {
         mess.members.push(request.userId);
+        
+        // Initialize memberSettings
+        if (!mess.memberSettings) mess.memberSettings = [];
+        const now = new Date();
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const currentMonthStr = `${months[now.getMonth()]} ${now.getFullYear()}`;
+        
+        mess.memberSettings.push({
+          userId: request.userId,
+          role: 'Permanent',
+          activePeriods: [{ startMonth: currentMonthStr }]
+        });
+
         await mess.save();
       }
     } else {
