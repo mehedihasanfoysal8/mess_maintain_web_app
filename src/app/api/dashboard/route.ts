@@ -183,7 +183,7 @@ export async function GET(req: NextRequest) {
         membersCount: activeMembersCount,
         memberType: mySettings?.role || 'Permanent',
         isActive: amIActive,
-        endDate: mySettings?.endDate || null,
+        endDate: (mySettings?.activePeriods && mySettings.activePeriods.length > 0) ? mySettings.activePeriods[mySettings.activePeriods.length - 1].endMonth || null : null,
       },
       personal: {
         myDeposit,

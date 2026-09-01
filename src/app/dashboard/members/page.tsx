@@ -282,8 +282,8 @@ function MemberCard({ member, isCurrentUserAdmin, onAction }: { member: any, isC
         <div>
           <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
             {member.name}
-            {!member.isActive && <XCircle size={16} className="text-red-500" title={`Left in ${member.leftMonth}`} />}
-            {member.isActive && <CheckCircle size={16} className="text-emerald-500" title="Active" />}
+            {!member.isActive && <XCircle size={16} className="text-red-500" />}
+            {member.isActive && <CheckCircle size={16} className="text-emerald-500" />}
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
             {!member.isActive ? `Left: ${member.leftMonth}` : 'Currently Active'}

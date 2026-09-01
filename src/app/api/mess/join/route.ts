@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if already a member
-    if (mess.members.includes(userId)) {
+    if (mess.members.map((id: any) => id.toString()).includes(userId)) {
       return NextResponse.json({ error: 'You are already a member of this mess' }, { status: 400 });
     }
 
