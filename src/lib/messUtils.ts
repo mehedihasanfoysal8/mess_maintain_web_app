@@ -75,7 +75,16 @@ export async function calculatePreviousBalances(messId: string, currentMonth: st
   const monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const previousMonthStr = `${monthsArr[targetDate.getMonth()]} ${targetDate.getFullYear()}`;
 
-  const monthsToProcess = getMonthsBetween(initialMonth, previousMonthStr);
+  // Override initial month to August 2026 if it's before August 2026,
+  // because users manually added previous balances as deposits in May, June, July.
+  let effectiveInitialMonth = initialMonth;
+  const initialDate = parseMonthString(initialMonth);
+  const cutoffDate = new Date(2026, 7, 1); // August 2026 (month index 7)
+  if (initialDate && initialDate < cutoffDate) {
+    effectiveInitialMonth = "August 2026";
+  }
+
+  const monthsToProcess = getMonthsBetween(effectiveInitialMonth, previousMonthStr);
   if (monthsToProcess.length === 0) return {};
 
   const messObjectId = new mongoose.Types.ObjectId(messId);
